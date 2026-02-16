@@ -1,0 +1,64 @@
+{
+  "manifestVersion": 1,
+  "id": "license-sbom-scanner",
+  "version": "1.0.0",
+  "name": "License & SBOM Scanner",
+  "description": "Scans repository dependencies for license compliance, generates CycloneDX SBOM documents, and tracks dependency freshness across NuGet, npm, Go, Python, and Maven ecosystems.",
+  "publisher": "allpay-adam",
+  "categories": ["Azure Repos"],
+  "tags": [
+    "license",
+    "sbom",
+    "compliance",
+    "dependencies",
+    "cyclonedx",
+    "nuget",
+    "npm",
+    "security",
+    "software-bill-of-materials"
+  ],
+  "targets": [{ "id": "Microsoft.VisualStudio.Services" }],
+  "icons": { "default": "static/icon.png" },
+  "content": { "details": { "path": "overview.md" } },
+  "links": {
+    "repository": {
+      "uri": "https://github.com/adam-wheater/license-sbom-scanner"
+    },
+    "issues": {
+      "uri": "https://github.com/adam-wheater/license-sbom-scanner/issues"
+    },
+    "support": {
+      "uri": "https://github.com/adam-wheater/license-sbom-scanner/issues"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/adam-wheater/license-sbom-scanner"
+  },
+  "branding": { "color": "#0078d4", "theme": "dark" },
+  "galleryFlags": ["Preview"],
+  "contributions": [
+    {
+      "id": "compliance-hub",
+      "type": "ms.vss-web.hub",
+      "description": "License & SBOM Scanner hub under Repos",
+      "targets": ["ms.vss-code-web.code-hub-group"],
+      "properties": {
+        "name": "Compliance",
+        "order": 99,
+        "uri": "dist/ComplianceHub/ComplianceHub.html",
+        "icon": {
+          "light": "static/icon.png",
+          "dark": "static/icon.png"
+        }
+      }
+    }
+  ],
+  "scopes": ["vso.code"],
+  "demands": [],
+  "files": [
+    { "path": "dist", "addressable": true },
+    { "path": "static", "addressable": true },
+    { "path": "overview.md", "addressable": true }
+  ]
+}

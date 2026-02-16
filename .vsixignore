@@ -1,0 +1,21 @@
+# Source files (not needed in package - only dist/ is used)
+src/**
+tests/**
+coverage/**
+node_modules/**
+
+# Config files
+tsconfig.json
+webpack.config.js
+package-lock.json
+jest.config.js
+.eslintrc.json
+.prettierrc.json
+.gitignore
+.vsixignore
+
+# Dev files
+*.log
+.DS_Store
+out/**
+.github/**

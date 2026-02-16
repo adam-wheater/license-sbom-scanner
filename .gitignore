@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.vsix
+.vscode/
+coverage/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Extension output
+out/
