@@ -175,6 +175,33 @@ export class NuGetParser implements IParser {
     return deps;
   }
 
+  /**
+   * Extracts the package ID that this file defines (i.e., the package this repo produces).
+   * Returns an array of package IDs found (usually 0 or 1).
+   */
+  extractProducedPackageIds(filePath: string, content: string): string[] {
+    const lower = filePath.toLowerCase();
+    const ids: string[] = [];
+
+    if (lower.endsWith(".nuspec")) {
+      // Extract <id> from within <metadata>
+      const metadataMatch = content.match(/<metadata[\s>][\s\S]*?<\/metadata>/i);
+      if (metadataMatch) {
+        const idMatch = metadataMatch[0].match(/<id>([^<]+)<\/id>/i);
+        if (idMatch) {
+          const id = idMatch[1].trim();
+          if (id) ids.push(id);
+        }
+      }
+    } else if (lower.endsWith(".csproj")) {
+      // Extract <PackageId> property
+      const packageId = this.extractTag(content, "PackageId");
+      if (packageId) ids.push(packageId);
+    }
+
+    return ids;
+  }
+
   private extractTag(content: string, tag: string): string | null {
     const regex = new RegExp(`<${tag}>([^<]+)</${tag}>`, "i");
     const match = content.match(regex);

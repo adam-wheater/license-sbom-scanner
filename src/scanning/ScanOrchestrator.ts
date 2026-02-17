@@ -21,10 +21,13 @@ import {
   RepoScanResult,
   LicensePolicy,
   ParsedDependency,
+  InternalPackageInfo,
+  Ecosystem,
 } from "@/models/types";
 
 export class ScanOrchestrator {
   private parsers: IParser[];
+  private nugetParser: NuGetParser;
   private licenseResolver: LicenseResolver;
   private policyEngine: PolicyEngine;
   private freshnessAnalyzer: FreshnessAnalyzer;
@@ -32,8 +35,9 @@ export class ScanOrchestrator {
   private onProgress?: (progress: ScanProgress) => void;
 
   constructor(policy?: LicensePolicy, onProgress?: (progress: ScanProgress) => void) {
+    this.nugetParser = new NuGetParser();
     this.parsers = [
-      new NuGetParser(),
+      this.nugetParser,
       new NpmParser(),
       new GoParser(),
       new PythonParser(),
@@ -112,6 +116,19 @@ export class ScanOrchestrator {
           }
         }
 
+        // Extract internal package IDs (packages this repo produces)
+        const repoInternalPackages: string[] = [];
+        for (const file of fileContents) {
+          if (this.nugetParser.filePatterns.some((p) => p.test(file.path))) {
+            try {
+              const ids = this.nugetParser.extractProducedPackageIds(file.path, file.content);
+              repoInternalPackages.push(...ids);
+            } catch {
+              // Ignore extraction errors
+            }
+          }
+        }
+
         // Deduplicate: same ecosystem + name within a repo, keep the first occurrence
         const seen = new Set<string>();
         const deduped = allParsed.filter((dep) => {
@@ -142,6 +159,7 @@ export class ScanOrchestrator {
           sbom,
           scannedAt: new Date(),
           fileCount: fileContents.length,
+          internalPackages: repoInternalPackages,
         });
       } catch (err) {
         console.warn(`Failed to scan repo ${repo.name}:`, err);
@@ -169,12 +187,21 @@ export class ScanOrchestrator {
       return b.dependencies.length - a.dependencies.length;
     });
 
+    // Aggregate internal packages across all repos
+    const allInternalPackages: InternalPackageInfo[] = [];
+    for (const r of results) {
+      for (const name of r.internalPackages) {
+        allInternalPackages.push({ name, repoName: r.repoName, ecosystem: Ecosystem.NuGet });
+      }
+    }
+
     return {
       repos: results,
       allRepoNames,
       totalDependencies: results.reduce((sum, r) => sum + r.dependencies.length, 0),
       totalViolations: results.reduce((sum, r) => sum + r.violations.length, 0),
       scanDurationMs: Date.now() - startTime,
+      internalPackages: allInternalPackages,
     };
   }
 

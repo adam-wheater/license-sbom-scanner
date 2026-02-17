@@ -110,6 +110,14 @@ export interface SbomDocument {
   components: SbomComponent[];
 }
 
+// === Internal Packages ===
+
+export interface InternalPackageInfo {
+  name: string;
+  repoName: string;
+  ecosystem: Ecosystem;
+}
+
 // === Scan Results ===
 
 export interface RepoScanResult {
@@ -121,6 +129,7 @@ export interface RepoScanResult {
   sbom: SbomDocument;
   scannedAt: Date;
   fileCount: number;
+  internalPackages: string[];
 }
 
 export interface ScanProgress {
@@ -138,6 +147,7 @@ export interface FullScanResult {
   totalDependencies: number;
   totalViolations: number;
   scanDurationMs: number;
+  internalPackages: InternalPackageInfo[];
 }
 
 // === Settings Persistence ===

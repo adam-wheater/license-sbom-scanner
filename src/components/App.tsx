@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FullScanResult, ScanProgress as ScanProgressType, LicenseCategory, Ecosystem } from "@/models/types";
+import { FullScanResult, ScanProgress as ScanProgressType, LicenseCategory, Ecosystem, ApprovedPackageEntry } from "@/models/types";
 import { LICENSE_CATEGORY_COLORS, ECOSYSTEM_COLORS } from "@/utils/Constants";
 import { ScanOrchestrator } from "@/scanning/ScanOrchestrator";
 import { usePolicySettings } from "@/hooks/usePolicySettings";
@@ -101,6 +101,33 @@ function AppInner() {
       if (gen === scanGenRef.current) {
         setScanResult(result);
         setActiveTab("overview");
+
+        // Auto-approve internal packages discovered during scan
+        if (result.internalPackages.length > 0) {
+          const existingNames = new Set(
+            approvedRegistry.packages.map((p) => `${p.ecosystem}::${p.name.toLowerCase()}`)
+          );
+          const newEntries: ApprovedPackageEntry[] = [];
+          for (const pkg of result.internalPackages) {
+            const key = `${pkg.ecosystem}::${pkg.name.toLowerCase()}`;
+            if (!existingNames.has(key)) {
+              existingNames.add(key);
+              newEntries.push({
+                name: pkg.name,
+                ecosystem: pkg.ecosystem,
+                approvedBy: "Auto-detected",
+                approvedAt: new Date().toISOString(),
+                reason: `Internal package (produced in ${pkg.repoName})`,
+              });
+            }
+          }
+          if (newEntries.length > 0) {
+            saveApprovedRegistry({
+              ...approvedRegistry,
+              packages: [...approvedRegistry.packages, ...newEntries],
+            });
+          }
+        }
       }
     } catch (err) {
       if (gen === scanGenRef.current) {
@@ -111,7 +138,7 @@ function AppInner() {
         setScanning(false);
       }
     }
-  }, [policy]);
+  }, [policy, approvedRegistry, saveApprovedRegistry]);
 
   const selectedRepoResult = scanResult?.repos.find((r) => r.repoName === selectedRepo) ?? null;
 
