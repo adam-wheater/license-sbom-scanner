@@ -1,4 +1,4 @@
-import { Ecosystem, LicenseCategory, PolicyAction, FreshnessStatus } from "@/models/types";
+import { Ecosystem, LicenseCategory, PolicyAction, FreshnessStatus, ApprovalStatus } from "@/models/types";
 
 // File patterns for dependency file discovery
 export const DEPENDENCY_FILE_PATTERNS: RegExp[] = [
@@ -79,3 +79,12 @@ export const FRESHNESS_COLORS: Record<FreshnessStatus, string> = {
 export const POLICY_SETTINGS_COLLECTION = "ComplianceScannerSettings";
 export const POLICY_DOC_ID = "license-policy";
 export const SETTINGS_VERSION = 1;
+export const APPROVED_PACKAGES_DOC_ID = "approved-packages";
+export const APPROVED_PACKAGES_VERSION = 1;
+
+// Approval status colors
+export const APPROVAL_STATUS_COLORS: Record<ApprovalStatus, string> = {
+  [ApprovalStatus.Approved]: "#4caf50",
+  [ApprovalStatus.AutoApproved]: "#2196f3",
+  [ApprovalStatus.Unapproved]: "#9e9e9e",
+};

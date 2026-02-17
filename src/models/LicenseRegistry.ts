@@ -1,4 +1,4 @@
-import { LicenseCategory, LicensePolicy, PolicyAction } from "./types";
+import { LicenseCategory, LicensePolicy, PolicyAction, ApprovedPackagesRegistry } from "./types";
 
 /**
  * Known license mappings for common packages, keyed by ecosystem then lowercase package name.
@@ -470,4 +470,9 @@ export const DEFAULT_POLICY: LicensePolicy = {
   },
   specificOverrides: [],
   excludedPackages: [],
+};
+
+export const DEFAULT_APPROVED_PACKAGES_REGISTRY: ApprovedPackagesRegistry = {
+  packages: [],
+  autoApprovalRules: [],
 };

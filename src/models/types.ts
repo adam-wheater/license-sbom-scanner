@@ -148,3 +148,39 @@ export interface PolicyDocument {
   version: number;
   __etag?: string;
 }
+
+// === Approved Packages ===
+
+export enum ApprovalStatus {
+  Approved = "approved",
+  AutoApproved = "auto-approved",
+  Unapproved = "unapproved",
+}
+
+export interface ApprovedPackageEntry {
+  name: string;
+  ecosystem: Ecosystem;
+  approvedBy: string;
+  approvedAt: string;
+  reason: string;
+}
+
+export interface AutoApprovalRule {
+  pattern: string;
+  ecosystem: Ecosystem;
+  approvedBy: string;
+  approvedAt: string;
+  reason: string;
+}
+
+export interface ApprovedPackagesRegistry {
+  packages: ApprovedPackageEntry[];
+  autoApprovalRules: AutoApprovalRule[];
+}
+
+export interface ApprovedPackagesDocument {
+  id: string;
+  registry: ApprovedPackagesRegistry;
+  version: number;
+  __etag?: string;
+}

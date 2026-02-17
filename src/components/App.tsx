@@ -3,6 +3,7 @@ import { FullScanResult, ScanProgress as ScanProgressType, LicenseCategory, Ecos
 import { LICENSE_CATEGORY_COLORS, ECOSYSTEM_COLORS } from "@/utils/Constants";
 import { ScanOrchestrator } from "@/scanning/ScanOrchestrator";
 import { usePolicySettings } from "@/hooks/usePolicySettings";
+import { useApprovedPackages } from "@/hooks/useApprovedPackages";
 import { useTheme } from "@/utils/theme";
 import { ControlBar, ViewTab } from "./ControlBar";
 import { RepoList } from "./RepoList";
@@ -12,6 +13,8 @@ import { PolicyViolations } from "./PolicyViolations";
 import { DependencyTable } from "./DependencyTable";
 import { SbomExport } from "./SbomExport";
 import { PolicySettings } from "./PolicySettings";
+import { LicenseGuide } from "./LicenseGuide";
+import { ApprovedPackagesSettings } from "./ApprovedPackagesSettings";
 
 // ErrorBoundary class component
 class ErrorBoundary extends React.Component<
@@ -61,6 +64,12 @@ function AppInner() {
     savePolicy,
     resetToDefaults,
   } = usePolicySettings();
+  const {
+    loading: approvedLoading,
+    registry: approvedRegistry,
+    saveRegistry: saveApprovedRegistry,
+    resetToDefaults: resetApprovedDefaults,
+  } = useApprovedPackages();
 
   const [scanResult, setScanResult] = React.useState<FullScanResult | null>(null);
   const [scanning, setScanning] = React.useState(false);
@@ -176,7 +185,9 @@ function AppInner() {
 
       {/* Main content */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {!scanResult && !scanning && (
+        {activeTab === "licenses" && <LicenseGuide />}
+
+        {activeTab !== "licenses" && !scanResult && !scanning && (
           <div
             style={{
               flex: 1,
@@ -198,12 +209,20 @@ function AppInner() {
         )}
 
         {scanResult && activeTab === "settings" && (
-          <PolicySettings
-            policy={policy}
-            onSave={savePolicy}
-            onReset={resetToDefaults}
-            loading={policyLoading}
-          />
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <PolicySettings
+              policy={policy}
+              onSave={savePolicy}
+              onReset={resetToDefaults}
+              loading={policyLoading}
+            />
+            <ApprovedPackagesSettings
+              registry={approvedRegistry}
+              onSave={saveApprovedRegistry}
+              onReset={resetApprovedDefaults}
+              loading={approvedLoading}
+            />
+          </div>
         )}
 
         {scanResult && activeTab === "overview" && (
@@ -225,6 +244,7 @@ function AppInner() {
                 activeTab={activeTab}
                 searchTerm={searchTerm}
                 allRepos={scanResult.repos}
+                approvalRegistry={approvedRegistry}
               />
             ) : (
               <div style={{ flex: 1, overflowY: "auto" }}>
@@ -234,6 +254,7 @@ function AppInner() {
                       dependencies={allDependencies}
                       searchTerm={searchTerm}
                       repoName="All Repositories"
+                      approvalRegistry={approvedRegistry}
                     />
                   </div>
                 )}

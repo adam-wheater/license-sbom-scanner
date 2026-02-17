@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTheme } from "@/utils/theme";
 
-export type ViewTab = "overview" | "dependencies" | "violations" | "sbom" | "settings";
+export type ViewTab = "overview" | "dependencies" | "violations" | "sbom" | "settings" | "licenses";
 
 interface ControlBarProps {
   scanning: boolean;
@@ -65,73 +65,87 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       </button>
 
       {hasResults && (
-        <>
-          <div
-            style={{
-              display: "flex",
-              gap: 0,
-              borderRadius: 3,
-              overflow: "hidden",
-              border: `1px solid ${theme.borderDefault}`,
-              marginLeft: 8,
-            }}
-          >
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => onTabChange(tab.key)}
-                style={{
-                  padding: "5px 12px",
-                  border: "none",
-                  background: activeTab === tab.key ? "#0078d4" : theme.btnDefaultBg,
-                  color: activeTab === tab.key ? "#fff" : theme.textPrimary,
-                  fontSize: 12,
-                  cursor: "pointer",
-                  borderRight:
-                    tab.key !== "settings" ? `1px solid ${theme.borderDefault}` : "none",
-                }}
-              >
-                {tab.label}
-                {tab.badge !== undefined && tab.badge > 0 && (
-                  <span
-                    style={{
-                      marginLeft: 4,
-                      padding: "1px 5px",
-                      borderRadius: 8,
-                      fontSize: 10,
-                      background:
-                        activeTab === tab.key
-                          ? "rgba(255,255,255,0.3)"
-                          : theme.bgSurfaceAlt,
-                    }}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {(activeTab === "dependencies" || activeTab === "violations") && (
-            <input
-              type="text"
-              placeholder="Search packages..."
-              value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
+        <div
+          style={{
+            display: "flex",
+            gap: 0,
+            borderRadius: 3,
+            overflow: "hidden",
+            border: `1px solid ${theme.borderDefault}`,
+            marginLeft: 8,
+          }}
+        >
+          {tabs.map((tab, i) => (
+            <button
+              key={tab.key}
+              onClick={() => onTabChange(tab.key)}
               style={{
-                marginLeft: "auto",
-                padding: "5px 10px",
-                border: `1px solid ${theme.borderInput}`,
-                borderRadius: 3,
+                padding: "5px 12px",
+                border: "none",
+                background: activeTab === tab.key ? "#0078d4" : theme.btnDefaultBg,
+                color: activeTab === tab.key ? "#fff" : theme.textPrimary,
                 fontSize: 12,
-                background: theme.bgSurface,
-                color: theme.textPrimary,
-                width: 200,
-                outline: "none",
+                cursor: "pointer",
+                borderRight:
+                  i < tabs.length - 1 ? `1px solid ${theme.borderDefault}` : "none",
               }}
-            />
-          )}
-        </>
+            >
+              {tab.label}
+              {tab.badge !== undefined && tab.badge > 0 && (
+                <span
+                  style={{
+                    marginLeft: 4,
+                    padding: "1px 5px",
+                    borderRadius: 8,
+                    fontSize: 10,
+                    background:
+                      activeTab === tab.key
+                        ? "rgba(255,255,255,0.3)"
+                        : theme.bgSurfaceAlt,
+                  }}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={() => onTabChange("licenses")}
+        style={{
+          padding: "5px 12px",
+          border: `1px solid ${theme.borderDefault}`,
+          borderRadius: 3,
+          background: activeTab === "licenses" ? "#0078d4" : theme.btnDefaultBg,
+          color: activeTab === "licenses" ? "#fff" : theme.textPrimary,
+          fontSize: 12,
+          cursor: "pointer",
+          marginLeft: hasResults ? 0 : 8,
+        }}
+      >
+        License Guide
+      </button>
+
+      {(activeTab === "dependencies" || activeTab === "violations") && (
+        <input
+          type="text"
+          placeholder="Search packages..."
+          value={searchTerm}
+          onChange={(e) => onSearchChange(e.target.value)}
+          style={{
+            marginLeft: "auto",
+            padding: "5px 10px",
+            border: `1px solid ${theme.borderInput}`,
+            borderRadius: 3,
+            fontSize: 12,
+            background: theme.bgSurface,
+            color: theme.textPrimary,
+            width: 200,
+            outline: "none",
+          }}
+        />
       )}
     </div>
   );

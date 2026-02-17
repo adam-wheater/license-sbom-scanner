@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RepoScanResult, Ecosystem, LicenseCategory } from "@/models/types";
+import { RepoScanResult, Ecosystem, LicenseCategory, ApprovedPackagesRegistry } from "@/models/types";
 import { useTheme } from "@/utils/theme";
 import { ECOSYSTEM_COLORS, LICENSE_CATEGORY_COLORS } from "@/utils/Constants";
 import { DependencyTable } from "./DependencyTable";
@@ -12,6 +12,7 @@ interface RepoDetailProps {
   activeTab: ViewTab;
   searchTerm: string;
   allRepos: RepoScanResult[];
+  approvalRegistry?: ApprovedPackagesRegistry;
 }
 
 export const RepoDetail: React.FC<RepoDetailProps> = ({
@@ -19,6 +20,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
   activeTab,
   searchTerm,
   allRepos,
+  approvalRegistry,
 }) => {
   const theme = useTheme();
 
@@ -142,6 +144,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
             dependencies={repo.dependencies}
             searchTerm={searchTerm}
             repoName={repo.repoName}
+            approvalRegistry={approvalRegistry}
           />
         )}
         {activeTab === "violations" && (
