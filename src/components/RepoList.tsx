@@ -6,7 +6,7 @@ import { LICENSE_CATEGORY_COLORS } from "@/utils/Constants";
 interface RepoListProps {
   repos: RepoScanResult[];
   selectedRepo: string | null;
-  onSelectRepo: (repoName: string) => void;
+  onSelectRepo: (repoName: string | null) => void;
 }
 
 export const RepoList: React.FC<RepoListProps> = ({ repos, selectedRepo, onSelectRepo }) => {
@@ -34,6 +34,22 @@ export const RepoList: React.FC<RepoListProps> = ({ repos, selectedRepo, onSelec
         }}
       >
         Repositories ({repos.length})
+      </div>
+      <div
+        onClick={() => onSelectRepo(null)}
+        style={{
+          padding: "8px 12px",
+          cursor: "pointer",
+          background: selectedRepo === null ? "#0078d4" : "transparent",
+          color: selectedRepo === null ? "#fff" : theme.textPrimary,
+          borderBottom: `1px solid ${theme.borderRow}`,
+          transition: "background 0.15s",
+        }}
+      >
+        <div style={{ fontSize: 13, fontWeight: 600 }}>All Repositories</div>
+        <div style={{ fontSize: 11, color: selectedRepo === null ? "rgba(255,255,255,0.8)" : theme.textMuted }}>
+          {repos.reduce((sum, r) => sum + r.dependencies.length, 0)} deps total
+        </div>
       </div>
       {repos.map((repo) => {
         const isSelected = repo.repoName === selectedRepo;

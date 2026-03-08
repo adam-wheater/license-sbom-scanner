@@ -22,8 +22,21 @@ import {
   LicensePolicy,
   ParsedDependency,
   InternalPackageInfo,
+  VersionInconsistency,
   Ecosystem,
 } from "@/models/types";
+
+export interface ScanOrchestratorDeps {
+  parsers?: IParser[];
+  licenseResolver?: LicenseResolver;
+  policyEngine?: PolicyEngine;
+  freshnessAnalyzer?: FreshnessAnalyzer;
+  sbomGenerator?: SbomGenerator;
+  getProject?: () => Promise<string>;
+  getRepositories?: (project: string) => Promise<{ id: string; name: string }[]>;
+  discoverFiles?: (repoId: string, project: string) => Promise<{ dependencyFiles: any[] }>;
+  fetchFileContents?: (repoId: string, project: string, files: any[]) => Promise<{ path: string; content: string }[]>;
+}
 
 export class ScanOrchestrator {
   private parsers: IParser[];
@@ -33,40 +46,63 @@ export class ScanOrchestrator {
   private freshnessAnalyzer: FreshnessAnalyzer;
   private sbomGenerator: SbomGenerator;
   private onProgress?: (progress: ScanProgress) => void;
+  private abortController?: AbortController;
+  private _getProject: () => Promise<string>;
+  private _getRepositories: (project: string) => Promise<{ id: string; name: string }[]>;
+  private _discoverFiles: (repoId: string, project: string) => Promise<{ dependencyFiles: any[] }>;
+  private _fetchFileContents: (repoId: string, project: string, files: any[]) => Promise<{ path: string; content: string }[]>;
 
-  constructor(policy?: LicensePolicy, onProgress?: (progress: ScanProgress) => void) {
+  constructor(
+    policy?: LicensePolicy,
+    onProgress?: (progress: ScanProgress) => void,
+    deps?: ScanOrchestratorDeps
+  ) {
     this.nugetParser = new NuGetParser();
-    this.parsers = [
+    this.parsers = deps?.parsers ?? [
       this.nugetParser,
       new NpmParser(),
       new GoParser(),
       new PythonParser(),
       new MavenParser(),
     ];
-    this.licenseResolver = new LicenseResolver();
-    this.policyEngine = new PolicyEngine(policy);
-    this.freshnessAnalyzer = new FreshnessAnalyzer();
-    this.sbomGenerator = new SbomGenerator();
+    this.licenseResolver = deps?.licenseResolver ?? new LicenseResolver();
+    this.policyEngine = deps?.policyEngine ?? new PolicyEngine(policy);
+    this.freshnessAnalyzer = deps?.freshnessAnalyzer ?? new FreshnessAnalyzer();
+    this.sbomGenerator = deps?.sbomGenerator ?? new SbomGenerator();
     this.onProgress = onProgress;
+
+    this._getProject = deps?.getProject ?? (async () => {
+      const projectService = await SDK.getService<IProjectPageService>(
+        CommonServiceIds.ProjectPageService
+      );
+      const projectInfo = await projectService.getProject();
+      if (!projectInfo) {
+        throw new Error("Could not determine the current project.");
+      }
+      return projectInfo.name;
+    });
+    this._getRepositories = deps?.getRepositories ?? ((project: string) => ApiClient.getRepositories(project));
+    this._discoverFiles = deps?.discoverFiles ?? discoverFiles;
+    this._fetchFileContents = deps?.fetchFileContents ?? fetchFileContents;
+  }
+
+  abort(): void {
+    this.abortController?.abort();
   }
 
   async scan(): Promise<FullScanResult> {
     const startTime = Date.now();
     this.freshnessAnalyzer.reset();
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
 
     // Resolve project
-    const projectService = await SDK.getService<IProjectPageService>(
-      CommonServiceIds.ProjectPageService
-    );
-    const projectInfo = await projectService.getProject();
-    if (!projectInfo) {
-      throw new Error("Could not determine the current project.");
-    }
-    const project = projectInfo.name;
+    const project = await this._getProject();
 
     // Fetch all repos
     this.reportProgress("discovery", 0, 0, "", "Fetching repositories...");
-    const repos = await ApiClient.getRepositories(project);
+    if (signal.aborted) throw new DOMException("Scan cancelled", "AbortError");
+    const repos = await this._getRepositories(project);
     const allRepoNames = repos.map((r) => r.name);
 
     // Scan repos concurrently
@@ -79,6 +115,8 @@ export class ScanOrchestrator {
 
     await repoLimiter.map(repos, async (repo) => {
       try {
+        if (signal.aborted) throw new DOMException("Scan cancelled", "AbortError");
+
         this.reportProgress(
           "scanning",
           repos.length,
@@ -88,14 +126,16 @@ export class ScanOrchestrator {
         );
 
         // Phase 1: Discover dependency files
-        const discovered = await discoverFiles(repo.id, project);
+        const discovered = await this._discoverFiles(repo.id, project);
         if (discovered.dependencyFiles.length === 0) {
           completed++;
           return;
         }
 
+        if (signal.aborted) throw new DOMException("Scan cancelled", "AbortError");
+
         // Phase 2: Fetch file contents
-        const fileContents = await fetchFileContents(
+        const fileContents = await this._fetchFileContents(
           repo.id,
           project,
           discovered.dependencyFiles
@@ -195,6 +235,32 @@ export class ScanOrchestrator {
       }
     }
 
+    // Build inconsistencies from the freshness analyzer
+    const rawInconsistencies = this.freshnessAnalyzer.getInconsistencies();
+    const inconsistencies: VersionInconsistency[] = [];
+    for (const [key, repoVersions] of rawInconsistencies) {
+      const [ecosystem, ...nameParts] = key.split(":");
+      const packageName = nameParts.join(":");
+      const entries: { repoName: string; version: string }[] = [];
+      for (const [repoName, versions] of repoVersions) {
+        for (const version of versions) {
+          entries.push({ repoName, version });
+        }
+      }
+      // Determine if there's a major version difference
+      const majors = new Set<number>();
+      for (const entry of entries) {
+        const match = entry.version.match(/^v?(\d+)/);
+        if (match) majors.add(parseInt(match[1], 10));
+      }
+      inconsistencies.push({
+        packageName,
+        ecosystem,
+        entries,
+        hasMajorDifference: majors.size > 1,
+      });
+    }
+
     return {
       repos: results,
       allRepoNames,
@@ -202,6 +268,7 @@ export class ScanOrchestrator {
       totalViolations: results.reduce((sum, r) => sum + r.violations.length, 0),
       scanDurationMs: Date.now() - startTime,
       internalPackages: allInternalPackages,
+      inconsistencies,
     };
   }
 

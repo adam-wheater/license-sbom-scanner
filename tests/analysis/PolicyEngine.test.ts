@@ -107,7 +107,7 @@ describe("PolicyEngine", () => {
         [LicenseCategory.Unknown]: PolicyAction.Warn,
       },
       specificOverrides: [],
-      excludedPackages: ["gpl-package"],
+      excludedPackages: [{ name: "gpl-package" }],
     });
 
     const violations = engine.evaluate("repo", [

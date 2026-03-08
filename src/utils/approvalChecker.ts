@@ -14,6 +14,21 @@ function patternToRegex(pattern: string): RegExp {
   return new RegExp(`^${withWildcards}$`, "i");
 }
 
+/**
+ * Cache of compiled regexes keyed by the original pattern string.
+ * This avoids recompilation on every render/call.
+ */
+const regexCache = new Map<string, RegExp>();
+
+function getCachedRegex(pattern: string): RegExp {
+  let cached = regexCache.get(pattern);
+  if (!cached) {
+    cached = patternToRegex(pattern);
+    regexCache.set(pattern, cached);
+  }
+  return cached;
+}
+
 export function getApprovalStatus(
   dep: ResolvedDependency,
   registry: ApprovedPackagesRegistry
@@ -27,7 +42,7 @@ export function getApprovalStatus(
 
   const ruleMatch = registry.autoApprovalRules.find(
     (r) =>
-      r.ecosystem === dep.ecosystem && patternToRegex(r.pattern).test(dep.name)
+      r.ecosystem === dep.ecosystem && getCachedRegex(r.pattern).test(dep.name)
   );
   if (ruleMatch) return ApprovalStatus.AutoApproved;
 
@@ -37,6 +52,7 @@ export function getApprovalStatus(
 /**
  * Batch version that pre-compiles rule regexes and builds a Set for O(1) explicit lookups.
  * Returns a Map keyed by "name::ecosystem::version".
+ * Uses a regex cache so regexes are not recompiled across calls with the same patterns.
  */
 export function buildApprovalMap(
   deps: ResolvedDependency[],
@@ -44,7 +60,7 @@ export function buildApprovalMap(
 ): Map<string, ApprovalStatus> {
   const compiledRules = registry.autoApprovalRules.map((r) => ({
     ...r,
-    regex: patternToRegex(r.pattern),
+    regex: getCachedRegex(r.pattern),
   }));
 
   const explicitSet = new Set(

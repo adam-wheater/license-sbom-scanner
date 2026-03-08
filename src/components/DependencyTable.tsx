@@ -27,6 +27,8 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
   const [filterEcosystem, setFilterEcosystem] = React.useState<Ecosystem | "all">("all");
   const [filterCategory, setFilterCategory] = React.useState<LicenseCategory | "all">("all");
   const [filterApproval, setFilterApproval] = React.useState<ApprovalStatus | "all">("all");
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const pageSize = 100;
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -79,6 +81,14 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
 
     return result;
   }, [dependencies, searchTerm, filterEcosystem, filterCategory, filterApproval, approvalMap, sortKey, sortDir]);
+
+  // Reset page when filters change
+  React.useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm, filterEcosystem, filterCategory, filterApproval, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginatedRows = filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
   const headerStyle: React.CSSProperties = {
     padding: "6px 10px",
@@ -182,11 +192,11 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((dep, idx) => {
+            {paginatedRows.map((dep) => {
               const approvalKey = `${dep.name}::${dep.ecosystem}::${dep.version}`;
               const status = approvalMap?.get(approvalKey) ?? ApprovalStatus.Unapproved;
               return (
-                <tr key={`${dep.name}-${dep.ecosystem}-${idx}`}>
+                <tr key={`${dep.name}-${dep.ecosystem}-${dep.version}-${dep.sourceFile}`}>
                   <td style={{ ...cellStyle, fontFamily: "monospace", fontWeight: 500 }}>
                     {dep.name}
                   </td>
@@ -254,6 +264,53 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12,
+            padding: "12px 0",
+          }}
+        >
+          <button
+            disabled={currentPage === 0}
+            onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+            style={{
+              padding: "4px 12px",
+              borderRadius: 3,
+              border: `1px solid ${theme.borderDefault}`,
+              background: currentPage === 0 ? theme.disabledBg : theme.btnDefaultBg,
+              color: currentPage === 0 ? theme.textMuted : theme.textPrimary,
+              fontSize: 12,
+              cursor: currentPage === 0 ? "not-allowed" : "pointer",
+            }}
+          >
+            Prev
+          </button>
+          <span style={{ fontSize: 12, color: theme.textSecondary }}>
+            Page {currentPage + 1} of {totalPages}
+          </span>
+          <button
+            disabled={currentPage >= totalPages - 1}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+            style={{
+              padding: "4px 12px",
+              borderRadius: 3,
+              border: `1px solid ${theme.borderDefault}`,
+              background: currentPage >= totalPages - 1 ? theme.disabledBg : theme.btnDefaultBg,
+              color: currentPage >= totalPages - 1 ? theme.textMuted : theme.textPrimary,
+              fontSize: 12,
+              cursor: currentPage >= totalPages - 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

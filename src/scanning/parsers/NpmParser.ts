@@ -34,7 +34,6 @@ export class NpmParser implements IParser {
     }
 
     const deps: ParsedDependency[] = [];
-    const declaredLicense = this.extractLicense(parsed);
 
     const scopeMap: [string, DependencyScope][] = [
       ["dependencies", DependencyScope.Runtime],
@@ -55,7 +54,6 @@ export class NpmParser implements IParser {
           ecosystem: Ecosystem.Npm,
           scope,
           sourceFile: filePath,
-          declaredLicense: scope === DependencyScope.Runtime ? declaredLicense : undefined,
         });
       }
     }
@@ -128,13 +126,8 @@ export class NpmParser implements IParser {
     return deps;
   }
 
-  private extractLicense(packageJson: any): string | undefined {
-    if (typeof packageJson.license === "string") {
-      return packageJson.license;
-    }
-    if (packageJson.license && typeof packageJson.license === "object") {
-      return packageJson.license.type || undefined;
-    }
-    return undefined;
-  }
+  // NOTE: extractLicense intentionally removed.
+  // The root package.json license field describes the repo itself,
+  // not its dependencies. It must NOT be propagated to declaredLicense
+  // on parsed dependencies.
 }

@@ -15,6 +15,10 @@ export function getExtensionContext(): { id: string } {
   return mockExtensionContext;
 }
 
+export function getUser(): { displayName: string; id: string } {
+  return { displayName: "Test User", id: "test-user-id" };
+}
+
 export function init(): Promise<void> {
   return Promise.resolve();
 }

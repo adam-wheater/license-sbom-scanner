@@ -51,15 +51,48 @@ export class FreshnessAnalyzer {
   }
 
   private assessFreshness(dep: ResolvedDependency): FreshnessStatus {
-    const parsed = this.parseSemver(dep.version);
+    const version = dep.version;
+
+    // Flag unpinned version ranges as Unknown
+    if (version === "*" || version === "latest" || version.startsWith(">=")) {
+      return FreshnessStatus.Unknown;
+    }
+
+    const parsed = this.parseSemver(version);
     if (!parsed) return FreshnessStatus.Unknown;
 
-    // Without external registry data, we can only provide heuristic assessment
-    // Mark v0.x as potentially pre-release
+    // Flag 0.x.y as pre-release / Unknown
     if (parsed.major === 0) return FreshnessStatus.Unknown;
 
-    // For everything else, we can't determine freshness without a registry
-    return FreshnessStatus.Unknown;
+    // Compare against highest major version seen across all repos for the same package
+    const key = `${dep.ecosystem}:${dep.name.toLowerCase()}`;
+    const repoVersions = this.versionMap.get(key);
+    if (repoVersions) {
+      let highestMajor = parsed.major;
+      let highestMinor = parsed.minor;
+      for (const versions of repoVersions.values()) {
+        for (const v of versions) {
+          const p = this.parseSemver(v);
+          if (p) {
+            if (p.major > highestMajor) {
+              highestMajor = p.major;
+              highestMinor = p.minor;
+            } else if (p.major === highestMajor && p.minor > highestMinor) {
+              highestMinor = p.minor;
+            }
+          }
+        }
+      }
+
+      if (parsed.major < highestMajor) {
+        return FreshnessStatus.MajorBehind;
+      }
+      if (parsed.minor < highestMinor) {
+        return FreshnessStatus.MinorBehind;
+      }
+    }
+
+    return FreshnessStatus.Current;
   }
 
   parseSemver(version: string): { major: number; minor: number; patch: number } | null {

@@ -57,10 +57,15 @@ export interface ResolvedDependency extends ParsedDependency {
 
 // === Policy ===
 
+export interface ExcludedPackageEntry {
+  name: string;
+  ecosystem?: Ecosystem;
+}
+
 export interface LicensePolicy {
   categoryDefaults: Record<LicenseCategory, PolicyAction>;
   specificOverrides: LicenseOverride[];
-  excludedPackages: string[];
+  excludedPackages: ExcludedPackageEntry[];
 }
 
 export interface LicenseOverride {
@@ -94,7 +99,7 @@ export interface SbomComponent {
   purl: string;
   licenses: { license: { id: string } }[];
   scope: "required" | "optional";
-  ecosystem: Ecosystem;
+  properties?: { name: string; value: string }[];
 }
 
 export interface SbomDocument {
@@ -141,6 +146,13 @@ export interface ScanProgress {
   failedRepos?: string[];
 }
 
+export interface VersionInconsistency {
+  packageName: string;
+  ecosystem: string;
+  entries: { repoName: string; version: string }[];
+  hasMajorDifference: boolean;
+}
+
 export interface FullScanResult {
   repos: RepoScanResult[];
   allRepoNames: string[];
@@ -148,6 +160,7 @@ export interface FullScanResult {
   totalViolations: number;
   scanDurationMs: number;
   internalPackages: InternalPackageInfo[];
+  inconsistencies: VersionInconsistency[];
 }
 
 // === Settings Persistence ===

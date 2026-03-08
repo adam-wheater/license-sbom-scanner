@@ -12,7 +12,7 @@ export const KNOWN_LICENSES: Record<string, Record<string, string>> = {
     // Serialization & JSON
     "newtonsoft.json": "MIT",
     "system.text.json": "MIT",
-    "messagePack": "MIT",
+    "messagepack": "MIT",
     "protobuf-net": "Apache-2.0",
     "yamldotnet": "MIT",
 
@@ -192,7 +192,7 @@ export const KNOWN_LICENSES: Record<string, Record<string, string>> = {
     "closedxml": "MIT",
     "epplus": "Polyform-Noncommercial-1.0.0",
     "npoi": "Apache-2.0",
-    "imageSharp": "Apache-2.0",
+    "imagesharp": "Apache-2.0",
     "sixlabors.imagesharp": "Apache-2.0",
     "markdig": "BSD-2-Clause",
     "mimekit": "MIT",
@@ -322,7 +322,7 @@ export const KNOWN_LICENSES: Record<string, Record<string, string>> = {
     "github.com/hashicorp/consul": "MPL-2.0",
     "github.com/hashicorp/vault": "MPL-2.0",
     "github.com/aws/aws-sdk-go": "Apache-2.0",
-    "github.com/Azure/azure-sdk-for-go": "MIT",
+    "github.com/azure/azure-sdk-for-go": "MIT",
   },
   python: {
     requests: "Apache-2.0",

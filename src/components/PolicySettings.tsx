@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LicenseCategory, PolicyAction, LicensePolicy, LicenseOverride } from "@/models/types";
+import { LicenseCategory, PolicyAction, LicensePolicy, LicenseOverride, Ecosystem, ExcludedPackageEntry } from "@/models/types";
 import { useTheme } from "@/utils/theme";
 import { LICENSE_CATEGORY_COLORS, POLICY_ACTION_COLORS } from "@/utils/Constants";
 
@@ -22,6 +22,9 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
   const [newOverrideLicense, setNewOverrideLicense] = React.useState("");
   const [newOverrideAction, setNewOverrideAction] = React.useState<PolicyAction>(PolicyAction.Warn);
   const [newExclusion, setNewExclusion] = React.useState("");
+  const [newExclusionEcosystem, setNewExclusionEcosystem] = React.useState<Ecosystem | "">(
+    ""
+  );
 
   React.useEffect(() => {
     setLocalPolicy(policy);
@@ -55,11 +58,16 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
 
   const addExclusion = () => {
     if (!newExclusion.trim()) return;
+    const entry: ExcludedPackageEntry = {
+      name: newExclusion.trim(),
+      ecosystem: newExclusionEcosystem || undefined,
+    };
     setLocalPolicy((prev) => ({
       ...prev,
-      excludedPackages: [...prev.excludedPackages, newExclusion.trim()],
+      excludedPackages: [...prev.excludedPackages, entry],
     }));
     setNewExclusion("");
+    setNewExclusionEcosystem("");
   };
 
   const removeExclusion = (idx: number) => {
@@ -77,6 +85,10 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
       setSaving(false);
     }
   };
+
+  const isDirty = React.useMemo(() => {
+    return JSON.stringify(localPolicy) !== JSON.stringify(policy);
+  }, [localPolicy, policy]);
 
   const sectionStyle: React.CSSProperties = {
     marginBottom: 24,
@@ -122,6 +134,17 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
         >
           {saving ? "Saving..." : "Save Policy"}
         </button>
+        {isDirty && (
+          <span
+            style={{
+              fontSize: 11,
+              color: theme.warningText,
+              fontWeight: 600,
+            }}
+          >
+            Unsaved changes
+          </span>
+        )}
         <button
           onClick={onReset}
           disabled={saving || loading}
@@ -180,7 +203,7 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
       <div style={sectionStyle}>
         <div style={sectionHeaderStyle}>Specific License Overrides</div>
         {localPolicy.specificOverrides.map((override, idx) => (
-          <div key={idx} style={rowStyle}>
+          <div key={`${override.licenseId}-${override.action}`} style={rowStyle}>
             <span style={{ flex: 1, fontSize: 12, fontFamily: "monospace" }}>
               {override.licenseId}
             </span>
@@ -267,8 +290,25 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
       <div style={sectionStyle}>
         <div style={sectionHeaderStyle}>Excluded Packages</div>
         {localPolicy.excludedPackages.map((pkg, idx) => (
-          <div key={idx} style={rowStyle}>
-            <span style={{ flex: 1, fontSize: 12, fontFamily: "monospace" }}>{pkg}</span>
+          <div key={`${pkg.name}-${pkg.ecosystem ?? "any"}`} style={rowStyle}>
+            <span style={{ flex: 1, fontSize: 12, fontFamily: "monospace" }}>{pkg.name}</span>
+            {pkg.ecosystem && (
+              <span
+                style={{
+                  padding: "2px 6px",
+                  borderRadius: 3,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: "#607d8b",
+                }}
+              >
+                {pkg.ecosystem}
+              </span>
+            )}
+            {!pkg.ecosystem && (
+              <span style={{ fontSize: 10, color: theme.textMuted }}>all ecosystems</span>
+            )}
             <button
               onClick={() => removeExclusion(idx)}
               style={{
@@ -301,6 +341,27 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
               color: theme.textPrimary,
             }}
           />
+          <select
+            value={newExclusionEcosystem}
+            onChange={(e) =>
+              setNewExclusionEcosystem(e.target.value as Ecosystem | "")
+            }
+            style={{
+              padding: "3px 6px",
+              fontSize: 12,
+              border: `1px solid ${theme.borderInput}`,
+              borderRadius: 3,
+              background: theme.bgSurface,
+              color: theme.textPrimary,
+            }}
+          >
+            <option value="">All ecosystems</option>
+            {Object.values(Ecosystem).map((eco) => (
+              <option key={eco} value={eco}>
+                {eco}
+              </option>
+            ))}
+          </select>
           <button
             onClick={addExclusion}
             style={{

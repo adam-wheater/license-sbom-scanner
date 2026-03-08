@@ -34,7 +34,7 @@ export class SbomGenerator {
         dep.scope === DependencyScope.Dev || dep.scope === DependencyScope.Test
           ? "optional"
           : "required",
-      ecosystem: dep.ecosystem,
+      properties: [{ name: "internal:ecosystem", value: dep.ecosystem }],
     };
   }
 

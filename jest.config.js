@@ -1,6 +1,6 @@
 module.exports = {
   preset: "ts-jest",
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
   roots: ["<rootDir>/tests"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
@@ -12,7 +12,7 @@ module.exports = {
   coverageDirectory: "coverage",
   collectCoverageFrom: [
     "src/**/*.ts",
-    "!src/**/*.tsx",
+    "src/**/*.tsx",
     "!src/ComplianceHub/**",
   ],
   coverageThreshold: {

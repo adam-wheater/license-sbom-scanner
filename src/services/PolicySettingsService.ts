@@ -1,9 +1,3 @@
-import * as SDK from "azure-devops-extension-sdk";
-import {
-  CommonServiceIds,
-  IExtensionDataService,
-  IExtensionDataManager,
-} from "azure-devops-extension-api";
 import { LicensePolicy, PolicyDocument } from "@/models/types";
 import { DEFAULT_POLICY } from "@/models/LicenseRegistry";
 import {
@@ -11,23 +5,9 @@ import {
   POLICY_DOC_ID,
   SETTINGS_VERSION,
 } from "@/utils/Constants";
+import { BaseDataService } from "./BaseDataService";
 
-export class PolicySettingsService {
-  private dataManagerPromise: Promise<IExtensionDataManager> | null = null;
-
-  private async getDataManager(): Promise<IExtensionDataManager> {
-    if (!this.dataManagerPromise) {
-      this.dataManagerPromise = (async () => {
-        const service = await SDK.getService<IExtensionDataService>(
-          CommonServiceIds.ExtensionDataService
-        );
-        const accessToken = await SDK.getAccessToken();
-        return service.getExtensionDataManager(SDK.getExtensionContext().id, accessToken);
-      })();
-    }
-    return this.dataManagerPromise;
-  }
-
+export class PolicySettingsService extends BaseDataService {
   async getPolicy(): Promise<PolicyDocument> {
     const manager = await this.getDataManager();
     try {

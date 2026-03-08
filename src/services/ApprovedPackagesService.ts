@@ -1,9 +1,3 @@
-import * as SDK from "azure-devops-extension-sdk";
-import {
-  CommonServiceIds,
-  IExtensionDataService,
-  IExtensionDataManager,
-} from "azure-devops-extension-api";
 import { ApprovedPackagesRegistry, ApprovedPackagesDocument } from "@/models/types";
 import { DEFAULT_APPROVED_PACKAGES_REGISTRY } from "@/models/LicenseRegistry";
 import {
@@ -11,23 +5,9 @@ import {
   APPROVED_PACKAGES_DOC_ID,
   APPROVED_PACKAGES_VERSION,
 } from "@/utils/Constants";
+import { BaseDataService } from "./BaseDataService";
 
-export class ApprovedPackagesService {
-  private dataManagerPromise: Promise<IExtensionDataManager> | null = null;
-
-  private async getDataManager(): Promise<IExtensionDataManager> {
-    if (!this.dataManagerPromise) {
-      this.dataManagerPromise = (async () => {
-        const service = await SDK.getService<IExtensionDataService>(
-          CommonServiceIds.ExtensionDataService
-        );
-        const accessToken = await SDK.getAccessToken();
-        return service.getExtensionDataManager(SDK.getExtensionContext().id, accessToken);
-      })();
-    }
-    return this.dataManagerPromise;
-  }
-
+export class ApprovedPackagesService extends BaseDataService {
   async getRegistry(): Promise<ApprovedPackagesDocument> {
     const manager = await this.getDataManager();
     try {

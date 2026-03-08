@@ -74,4 +74,57 @@ describe("FreshnessAnalyzer", () => {
     analyzer.reset();
     expect(analyzer.getInconsistencies().size).toBe(0);
   });
+
+  // Freshness heuristic tests
+  test("flags 0.x.y versions as Unknown (pre-release)", () => {
+    const results = analyzer.analyze("repo", [
+      makeDep({ name: "pre-release-pkg", version: "0.5.3" }),
+    ]);
+
+    expect(results[0].status).toBe(FreshnessStatus.Unknown);
+  });
+
+  test("flags unpinned version ranges as Unknown", () => {
+    const resultsWild = analyzer.analyze("repo", [
+      makeDep({ name: "wild-pkg", version: "*" }),
+    ]);
+    expect(resultsWild[0].status).toBe(FreshnessStatus.Unknown);
+
+    analyzer.reset();
+    const resultsLatest = analyzer.analyze("repo", [
+      makeDep({ name: "latest-pkg", version: "latest" }),
+    ]);
+    expect(resultsLatest[0].status).toBe(FreshnessStatus.Unknown);
+
+    analyzer.reset();
+    const resultsGte = analyzer.analyze("repo", [
+      makeDep({ name: "gte-pkg", version: ">=1.0.0" }),
+    ]);
+    expect(resultsGte[0].status).toBe(FreshnessStatus.Unknown);
+  });
+
+  test("detects major version behind when comparing across repos", () => {
+    // Register version 3.0.0 for repo-a first
+    analyzer.analyze("repo-a", [makeDep({ version: "3.0.0" })]);
+
+    // Now repo-b with version 1.0.0 should be flagged as major behind
+    const results = analyzer.analyze("repo-b", [makeDep({ version: "1.0.0" })]);
+    expect(results[0].status).toBe(FreshnessStatus.MajorBehind);
+  });
+
+  test("detects minor version behind when comparing across repos", () => {
+    // Register version 2.5.0 for repo-a first
+    analyzer.analyze("repo-a", [makeDep({ version: "2.5.0" })]);
+
+    // Now repo-b with version 2.1.0 should be flagged as minor behind
+    const results = analyzer.analyze("repo-b", [makeDep({ version: "2.1.0" })]);
+    expect(results[0].status).toBe(FreshnessStatus.MinorBehind);
+  });
+
+  test("marks as Current when on highest version", () => {
+    analyzer.analyze("repo-a", [makeDep({ version: "2.0.0" })]);
+    const results = analyzer.analyze("repo-b", [makeDep({ version: "3.0.0" })]);
+
+    expect(results[0].status).toBe(FreshnessStatus.Current);
+  });
 });

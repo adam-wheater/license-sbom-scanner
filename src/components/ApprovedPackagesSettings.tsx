@@ -16,9 +16,13 @@ interface ApprovedPackagesSettingsProps {
   loading: boolean;
 }
 
+let cachedUserName: string | null = null;
+
 function getCurrentUser(): string {
+  if (cachedUserName !== null) return cachedUserName;
   try {
-    return SDK.getUser().displayName || "Unknown";
+    cachedUserName = SDK.getUser().displayName || "Unknown";
+    return cachedUserName;
   } catch {
     return "Unknown";
   }
@@ -201,7 +205,7 @@ export const ApprovedPackagesSettings: React.FC<ApprovedPackagesSettingsProps> =
           </span>
         </div>
         {localRegistry.autoApprovalRules.map((rule, idx) => (
-          <div key={idx} style={rowStyle}>
+          <div key={`${rule.pattern}-${rule.ecosystem}`} style={rowStyle}>
             <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: 500, minWidth: 150 }}>
               {rule.pattern}
             </span>
@@ -286,7 +290,7 @@ export const ApprovedPackagesSettings: React.FC<ApprovedPackagesSettingsProps> =
       <div style={sectionStyle}>
         <div style={sectionHeaderStyle}>Individual Approved Packages</div>
         {localRegistry.packages.map((pkg, idx) => (
-          <div key={idx} style={rowStyle}>
+          <div key={`${pkg.name}-${pkg.ecosystem}`} style={rowStyle}>
             <span style={{ fontSize: 12, fontFamily: "monospace", fontWeight: 500, minWidth: 150 }}>
               {pkg.name}
             </span>

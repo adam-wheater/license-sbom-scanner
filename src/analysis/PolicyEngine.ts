@@ -22,10 +22,12 @@ export class PolicyEngine {
     const violations: PolicyViolation[] = [];
 
     for (const dep of deps) {
-      // Skip excluded packages
+      // Skip excluded packages (match by name, and optionally by ecosystem)
       if (
         this.policy.excludedPackages.some(
-          (p) => dep.name.toLowerCase() === p.toLowerCase()
+          (p) =>
+            dep.name.toLowerCase() === p.name.toLowerCase() &&
+            (p.ecosystem === undefined || p.ecosystem === dep.ecosystem)
         )
       ) {
         continue;

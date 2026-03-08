@@ -15,6 +15,7 @@ import { SbomExport } from "./SbomExport";
 import { PolicySettings } from "./PolicySettings";
 import { LicenseGuide } from "./LicenseGuide";
 import { ApprovedPackagesSettings } from "./ApprovedPackagesSettings";
+import { InconsistencyView } from "./InconsistencyView";
 
 // ErrorBoundary class component
 class ErrorBoundary extends React.Component<
@@ -80,6 +81,17 @@ function AppInner() {
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const scanGenRef = React.useRef(0);
+  const approvedRegistryRef = React.useRef(approvedRegistry);
+  React.useEffect(() => {
+    approvedRegistryRef.current = approvedRegistry;
+  }, [approvedRegistry]);
+
+  const [autoApprovedCount, setAutoApprovedCount] = React.useState<number | null>(null);
+  const orchestratorRef = React.useRef<ScanOrchestrator | null>(null);
+
+  const handleCancel = React.useCallback(() => {
+    orchestratorRef.current?.abort();
+  }, []);
 
   const handleScan = React.useCallback(async () => {
     const gen = ++scanGenRef.current;
@@ -89,6 +101,7 @@ function AppInner() {
     setScanResult(null);
     setSelectedRepo(null);
     setActiveTab("overview");
+    setAutoApprovedCount(null);
 
     try {
       const orchestrator = new ScanOrchestrator(policy, (p) => {
@@ -96,6 +109,7 @@ function AppInner() {
           setProgress(p);
         }
       });
+      orchestratorRef.current = orchestrator;
       const result = await orchestrator.scan();
 
       if (gen === scanGenRef.current) {
@@ -104,8 +118,9 @@ function AppInner() {
 
         // Auto-approve internal packages discovered during scan
         if (result.internalPackages.length > 0) {
+          const currentRegistry = approvedRegistryRef.current;
           const existingNames = new Set(
-            approvedRegistry.packages.map((p) => `${p.ecosystem}::${p.name.toLowerCase()}`)
+            currentRegistry.packages.map((p) => `${p.ecosystem}::${p.name.toLowerCase()}`)
           );
           const newEntries: ApprovedPackageEntry[] = [];
           for (const pkg of result.internalPackages) {
@@ -123,22 +138,29 @@ function AppInner() {
           }
           if (newEntries.length > 0) {
             saveApprovedRegistry({
-              ...approvedRegistry,
-              packages: [...approvedRegistry.packages, ...newEntries],
+              ...currentRegistry,
+              packages: [...currentRegistry.packages, ...newEntries],
             });
+            setAutoApprovedCount(newEntries.length);
           }
         }
       }
     } catch (err) {
       if (gen === scanGenRef.current) {
-        setScanError(err instanceof Error ? err.message : String(err));
+        const isAbort = err instanceof DOMException && err.name === "AbortError";
+        if (isAbort) {
+          setScanError("Scan cancelled.");
+        } else {
+          setScanError(err instanceof Error ? err.message : String(err));
+        }
       }
     } finally {
+      orchestratorRef.current = null;
       if (gen === scanGenRef.current) {
         setScanning(false);
       }
     }
-  }, [policy, approvedRegistry, saveApprovedRegistry]);
+  }, [policy, saveApprovedRegistry]);
 
   const selectedRepoResult = scanResult?.repos.find((r) => r.repoName === selectedRepo) ?? null;
 
@@ -184,6 +206,7 @@ function AppInner() {
       <ControlBar
         scanning={scanning}
         onScan={handleScan}
+        onCancel={handleCancel}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         searchTerm={searchTerm}
@@ -191,6 +214,7 @@ function AppInner() {
         hasResults={!!scanResult}
         totalDeps={scanResult?.totalDependencies ?? 0}
         totalViolations={scanResult?.totalViolations ?? 0}
+        totalInconsistencies={scanResult?.inconsistencies.length ?? 0}
       />
 
       {/* Progress */}
@@ -210,11 +234,46 @@ function AppInner() {
         </div>
       )}
 
+      {/* Auto-approved notification */}
+      {autoApprovedCount !== null && autoApprovedCount > 0 && (
+        <div
+          style={{
+            padding: "8px 16px",
+            background: theme.successBg,
+            color: theme.successText,
+            fontSize: 13,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <span>
+            {autoApprovedCount} new internal package{autoApprovedCount !== 1 ? "s were" : " was"} auto-approved.
+          </span>
+          <button
+            onClick={() => setAutoApprovedCount(null)}
+            style={{
+              border: "none",
+              background: "transparent",
+              color: theme.successText,
+              cursor: "pointer",
+              fontSize: 16,
+              fontWeight: 700,
+              padding: "0 4px",
+              lineHeight: 1,
+            }}
+            aria-label="Dismiss notification"
+          >
+            x
+          </button>
+        </div>
+      )}
+
       {/* Main content */}
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {activeTab === "licenses" && <LicenseGuide />}
 
-        {activeTab !== "licenses" && !scanResult && !scanning && (
+        {activeTab !== "licenses" && activeTab !== "settings" && !scanResult && !scanning && (
           <div
             style={{
               flex: 1,
@@ -235,7 +294,7 @@ function AppInner() {
           </div>
         )}
 
-        {scanResult && activeTab === "settings" && (
+        {activeTab === "settings" && (
           <div style={{ flex: 1, overflowY: "auto" }}>
             <PolicySettings
               policy={policy}
@@ -255,6 +314,12 @@ function AppInner() {
         {scanResult && activeTab === "overview" && (
           <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
             <OverviewPanel result={scanResult} />
+          </div>
+        )}
+
+        {scanResult && activeTab === "inconsistencies" && (
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <InconsistencyView inconsistencies={scanResult.inconsistencies} />
           </div>
         )}
 

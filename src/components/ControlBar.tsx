@@ -1,11 +1,12 @@
 import * as React from "react";
 import { useTheme } from "@/utils/theme";
 
-export type ViewTab = "overview" | "dependencies" | "violations" | "sbom" | "settings" | "licenses";
+export type ViewTab = "overview" | "dependencies" | "violations" | "inconsistencies" | "sbom" | "settings" | "licenses";
 
 interface ControlBarProps {
   scanning: boolean;
   onScan: () => void;
+  onCancel?: () => void;
   activeTab: ViewTab;
   onTabChange: (tab: ViewTab) => void;
   searchTerm: string;
@@ -13,11 +14,13 @@ interface ControlBarProps {
   hasResults: boolean;
   totalDeps: number;
   totalViolations: number;
+  totalInconsistencies: number;
 }
 
 export const ControlBar: React.FC<ControlBarProps> = ({
   scanning,
   onScan,
+  onCancel,
   activeTab,
   onTabChange,
   searchTerm,
@@ -25,6 +28,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   hasResults,
   totalDeps,
   totalViolations,
+  totalInconsistencies,
 }) => {
   const theme = useTheme();
 
@@ -32,6 +36,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
     { key: "overview", label: "Overview" },
     { key: "dependencies", label: "Dependencies", badge: totalDeps },
     { key: "violations", label: "Violations", badge: totalViolations },
+    { key: "inconsistencies", label: "Inconsistencies", badge: totalInconsistencies },
     { key: "sbom", label: "SBOM" },
     { key: "settings", label: "Settings" },
   ];
@@ -63,6 +68,23 @@ export const ControlBar: React.FC<ControlBarProps> = ({
       >
         {scanning ? "Scanning..." : "Scan All Repos"}
       </button>
+      {scanning && onCancel && (
+        <button
+          onClick={onCancel}
+          style={{
+            padding: "6px 16px",
+            borderRadius: 3,
+            border: `1px solid ${theme.borderDefault}`,
+            background: theme.btnCancelBg,
+            color: theme.errorText,
+            fontWeight: 600,
+            fontSize: 13,
+            cursor: "pointer",
+          }}
+        >
+          Cancel
+        </button>
+      )}
 
       {hasResults && (
         <div
@@ -128,7 +150,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         License Guide
       </button>
 
-      {(activeTab === "dependencies" || activeTab === "violations") && (
+      {(activeTab === "dependencies" || activeTab === "violations" || activeTab === "inconsistencies") && (
         <input
           type="text"
           placeholder="Search packages..."

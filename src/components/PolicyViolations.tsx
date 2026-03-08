@@ -31,7 +31,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({
 
   const renderViolation = (v: PolicyViolation, idx: number) => (
     <div
-      key={`${v.repoName}-${v.dependency.name}-${idx}`}
+      key={`${v.repoName}-${v.dependency.ecosystem}-${v.dependency.name}-${v.dependency.version}`}
       style={{
         padding: "8px 12px",
         borderBottom: `1px solid ${theme.borderRow}`,

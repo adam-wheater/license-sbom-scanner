@@ -33,8 +33,9 @@ describe("NpmParser", () => {
       version: "^18.2.0",
       ecosystem: Ecosystem.Npm,
       scope: DependencyScope.Runtime,
-      declaredLicense: "MIT",
     });
+    // Root package.json license should NOT be propagated to dependencies
+    expect(deps[0].declaredLicense).toBeUndefined();
     expect(deps[2]).toMatchObject({
       name: "jest",
       scope: DependencyScope.Dev,
@@ -84,13 +85,14 @@ describe("NpmParser", () => {
     expect(parser.parse("repo", "/package-lock.json", "{broken")).toHaveLength(0);
   });
 
-  test("handles license as object", () => {
+  test("does not propagate root license to dependencies", () => {
     const content = JSON.stringify({
       license: { type: "Apache-2.0", url: "https://example.com" },
       dependencies: { foo: "1.0.0" },
     });
 
     const deps = parser.parse("repo", "/package.json", content);
-    expect(deps[0].declaredLicense).toBe("Apache-2.0");
+    // Root package.json license must NOT be applied to runtime dependencies
+    expect(deps[0].declaredLicense).toBeUndefined();
   });
 });

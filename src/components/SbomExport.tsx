@@ -27,11 +27,29 @@ export const SbomExport: React.FC<SbomExportProps> = ({ repos, selectedRepo }) =
     URL.revokeObjectURL(url);
   };
 
-  const downloadAllSboms = () => {
-    for (const repo of displayRepos) {
-      if (repo.sbom.components.length > 0) {
-        downloadSbom(repo);
+  const [downloadingAll, setDownloadingAll] = React.useState(false);
+
+  const downloadAllSboms = async () => {
+    // Download individual SBOM files sequentially (one per repo)
+    setDownloadingAll(true);
+    try {
+      for (const repo of displayRepos) {
+        if (repo.sbom.components.length === 0) continue;
+        const json = JSON.stringify(repo.sbom, null, 2);
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${repo.repoName}-sbom-cyclonedx.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        // Small delay between downloads to avoid browser throttling
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
+    } finally {
+      setDownloadingAll(false);
     }
   };
 
@@ -44,17 +62,18 @@ export const SbomExport: React.FC<SbomExportProps> = ({ repos, selectedRepo }) =
         {!selectedRepo && displayRepos.length > 1 && (
           <button
             onClick={downloadAllSboms}
+            disabled={downloadingAll}
             style={{
               padding: "5px 12px",
               borderRadius: 3,
               border: `1px solid ${theme.borderDefault}`,
-              background: theme.btnDefaultBg,
-              color: theme.textPrimary,
+              background: downloadingAll ? theme.disabledBg : theme.btnDefaultBg,
+              color: downloadingAll ? theme.textMuted : theme.textPrimary,
               fontSize: 12,
-              cursor: "pointer",
+              cursor: downloadingAll ? "not-allowed" : "pointer",
             }}
           >
-            Download All SBOMs
+            {downloadingAll ? "Downloading..." : "Download All SBOMs"}
           </button>
         )}
       </div>
