@@ -24,7 +24,7 @@ type SortDir = "asc" | "desc";
 export const DependencyTable: React.FC<DependencyTableProps> = ({
   dependencies,
   searchTerm,
-  repoName,
+  repoName: _repoName,
   approvalRegistry,
 }) => {
   const theme = useTheme();

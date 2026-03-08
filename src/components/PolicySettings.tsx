@@ -3,7 +3,6 @@ import {
   LicenseCategory,
   PolicyAction,
   LicensePolicy,
-  LicenseOverride,
   Ecosystem,
   ExcludedPackageEntry,
 } from "@/models/types";

@@ -26,7 +26,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ violations, 
   const blocked = filtered.filter((v) => v.action === PolicyAction.Block);
   const warned = filtered.filter((v) => v.action === PolicyAction.Warn);
 
-  const renderViolation = (v: PolicyViolation, idx: number) => (
+  const renderViolation = (v: PolicyViolation, _idx: number) => (
     <div
       key={`${v.repoName}-${v.dependency.ecosystem}-${v.dependency.name}-${v.dependency.version}`}
       style={{

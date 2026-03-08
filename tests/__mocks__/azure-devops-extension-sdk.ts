@@ -1,7 +1,7 @@
 // Mock for azure-devops-extension-sdk
 const mockServices: Record<string, any> = {};
-let mockAccessToken = "mock-access-token";
-let mockExtensionContext = { id: "mock-extension-id" };
+const mockAccessToken = "mock-access-token";
+const mockExtensionContext = { id: "mock-extension-id" };
 
 export function getService<T>(serviceId: string): Promise<T> {
   return Promise.resolve(mockServices[serviceId] as T);

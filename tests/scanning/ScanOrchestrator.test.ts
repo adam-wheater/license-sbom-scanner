@@ -4,7 +4,7 @@ import { LicenseResolver } from "@/scanning/LicenseResolver";
 import { PolicyEngine } from "@/analysis/PolicyEngine";
 import { FreshnessAnalyzer } from "@/analysis/FreshnessAnalyzer";
 import { SbomGenerator } from "@/analysis/SbomGenerator";
-import { ScanProgress, Ecosystem, DependencyScope, LicenseCategory } from "@/models/types";
+import { ScanProgress } from "@/models/types";
 
 function makeMockDeps(overrides: Partial<ScanOrchestratorDeps> = {}): ScanOrchestratorDeps {
   return {
