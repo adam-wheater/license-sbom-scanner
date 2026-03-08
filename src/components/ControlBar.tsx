@@ -1,7 +1,14 @@
 import * as React from "react";
 import { useTheme } from "@/utils/theme";
 
-export type ViewTab = "overview" | "dependencies" | "violations" | "inconsistencies" | "sbom" | "settings" | "licenses";
+export type ViewTab =
+  | "overview"
+  | "dependencies"
+  | "violations"
+  | "inconsistencies"
+  | "sbom"
+  | "settings"
+  | "licenses";
 
 interface ControlBarProps {
   scanning: boolean;
@@ -108,8 +115,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                 color: activeTab === tab.key ? "#fff" : theme.textPrimary,
                 fontSize: 12,
                 cursor: "pointer",
-                borderRight:
-                  i < tabs.length - 1 ? `1px solid ${theme.borderDefault}` : "none",
+                borderRight: i < tabs.length - 1 ? `1px solid ${theme.borderDefault}` : "none",
               }}
             >
               {tab.label}
@@ -121,9 +127,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                     borderRadius: 8,
                     fontSize: 10,
                     background:
-                      activeTab === tab.key
-                        ? "rgba(255,255,255,0.3)"
-                        : theme.bgSurfaceAlt,
+                      activeTab === tab.key ? "rgba(255,255,255,0.3)" : theme.bgSurfaceAlt,
                   }}
                 >
                   {tab.badge}
@@ -150,7 +154,9 @@ export const ControlBar: React.FC<ControlBarProps> = ({
         License Guide
       </button>
 
-      {(activeTab === "dependencies" || activeTab === "violations" || activeTab === "inconsistencies") && (
+      {(activeTab === "dependencies" ||
+        activeTab === "violations" ||
+        activeTab === "inconsistencies") && (
         <input
           type="text"
           placeholder="Search packages..."

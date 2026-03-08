@@ -7,9 +7,7 @@ import {
   DependencyScope,
 } from "@/models/types";
 
-function makeDep(
-  overrides: Partial<ResolvedDependency> = {}
-): ResolvedDependency {
+function makeDep(overrides: Partial<ResolvedDependency> = {}): ResolvedDependency {
   return {
     name: "test-package",
     version: "1.0.0",

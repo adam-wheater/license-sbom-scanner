@@ -4,19 +4,12 @@ import { LicenseResolver } from "@/scanning/LicenseResolver";
 import { PolicyEngine } from "@/analysis/PolicyEngine";
 import { FreshnessAnalyzer } from "@/analysis/FreshnessAnalyzer";
 import { SbomGenerator } from "@/analysis/SbomGenerator";
-import {
-  ScanProgress,
-  Ecosystem,
-  DependencyScope,
-  LicenseCategory,
-} from "@/models/types";
+import { ScanProgress, Ecosystem, DependencyScope, LicenseCategory } from "@/models/types";
 
 function makeMockDeps(overrides: Partial<ScanOrchestratorDeps> = {}): ScanOrchestratorDeps {
   return {
     getProject: async () => "test-project",
-    getRepositories: async () => [
-      { id: "repo-1", name: "my-repo" },
-    ],
+    getRepositories: async () => [{ id: "repo-1", name: "my-repo" }],
     discoverFiles: async () => ({
       dependencyFiles: [{ path: "/package.json", isFolder: false }],
     }),
@@ -139,19 +132,15 @@ describe("ScanOrchestrator", () => {
     const result = await orchestrator.scan();
 
     // "react" should appear only once per repo (deduplication)
-    const reactDeps = result.repos[0].dependencies.filter(
-      (d) => d.name === "react"
-    );
+    const reactDeps = result.repos[0].dependencies.filter((d) => d.name === "react");
     expect(reactDeps).toHaveLength(1);
   });
 
   test("can be aborted", async () => {
     let resolveRepo: () => void;
-    const waitForever = new Promise<{ path: string; content: string }[]>(
-      (resolve) => {
-        resolveRepo = () => resolve([]);
-      }
-    );
+    const waitForever = new Promise<{ path: string; content: string }[]>((resolve) => {
+      resolveRepo = () => resolve([]);
+    });
 
     const deps = makeMockDeps({
       fetchFileContents: () => waitForever,

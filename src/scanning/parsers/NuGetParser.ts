@@ -36,8 +36,7 @@ export class NuGetParser implements IParser {
     const projectLicense = this.extractTag(content, "PackageLicenseExpression");
 
     // PackageReference elements: <PackageReference Include="X" Version="Y" />
-    const packageRefRegex =
-      /<PackageReference\s+[^>]*Include\s*=\s*"([^"]+)"[^>]*?\/?>/gi;
+    const packageRefRegex = /<PackageReference\s+[^>]*Include\s*=\s*"([^"]+)"[^>]*?\/?>/gi;
     let match: RegExpExecArray | null;
 
     while ((match = packageRefRegex.exec(content)) !== null) {
@@ -153,8 +152,7 @@ export class NuGetParser implements IParser {
     const declaredLicense = licenseMatch ? licenseMatch[1].trim() : undefined;
 
     // <dependency id="X" version="Y" />
-    const depRegex =
-      /<dependency\s+[^>]*id\s*=\s*"([^"]+)"[^>]*version\s*=\s*"([^"]*)"[^>]*\/?>/gi;
+    const depRegex = /<dependency\s+[^>]*id\s*=\s*"([^"]+)"[^>]*version\s*=\s*"([^"]*)"[^>]*\/?>/gi;
     let match: RegExpExecArray | null;
 
     while ((match = depRegex.exec(content)) !== null) {

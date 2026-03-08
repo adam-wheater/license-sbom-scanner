@@ -90,8 +90,7 @@ export class NpmParser implements IParser {
 
         const version = info.version || "*";
         const scope = info.dev ? DependencyScope.Dev : DependencyScope.Runtime;
-        const declaredLicense =
-          typeof info.license === "string" ? info.license : undefined;
+        const declaredLicense = typeof info.license === "string" ? info.license : undefined;
 
         deps.push({
           name,

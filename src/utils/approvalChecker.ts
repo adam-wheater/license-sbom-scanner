@@ -1,8 +1,4 @@
-import {
-  ResolvedDependency,
-  ApprovedPackagesRegistry,
-  ApprovalStatus,
-} from "@/models/types";
+import { ResolvedDependency, ApprovedPackagesRegistry, ApprovalStatus } from "@/models/types";
 
 /**
  * Converts a user-facing glob pattern (e.g. "Microsoft.*") to a RegExp.
@@ -34,15 +30,12 @@ export function getApprovalStatus(
   registry: ApprovedPackagesRegistry
 ): ApprovalStatus {
   const explicit = registry.packages.find(
-    (p) =>
-      p.ecosystem === dep.ecosystem &&
-      p.name.toLowerCase() === dep.name.toLowerCase()
+    (p) => p.ecosystem === dep.ecosystem && p.name.toLowerCase() === dep.name.toLowerCase()
   );
   if (explicit) return ApprovalStatus.Approved;
 
   const ruleMatch = registry.autoApprovalRules.find(
-    (r) =>
-      r.ecosystem === dep.ecosystem && getCachedRegex(r.pattern).test(dep.name)
+    (r) => r.ecosystem === dep.ecosystem && getCachedRegex(r.pattern).test(dep.name)
   );
   if (ruleMatch) return ApprovalStatus.AutoApproved;
 

@@ -2,11 +2,7 @@ import * as React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { PolicySettings } from "@/components/PolicySettings";
-import {
-  LicenseCategory,
-  PolicyAction,
-  LicensePolicy,
-} from "@/models/types";
+import { LicenseCategory, PolicyAction, LicensePolicy } from "@/models/types";
 import { DEFAULT_POLICY } from "@/models/LicenseRegistry";
 
 describe("PolicySettings", () => {
@@ -96,9 +92,8 @@ describe("PolicySettings", () => {
 
     // Type a license ID in the override input
     const inputs = screen.getAllByRole("textbox");
-    const licenseInput = inputs.find(
-      (input) =>
-        (input as HTMLInputElement).placeholder?.includes("SPDX License ID")
+    const licenseInput = inputs.find((input) =>
+      (input as HTMLInputElement).placeholder?.includes("SPDX License ID")
     )!;
     fireEvent.change(licenseInput, { target: { value: "GPL-3.0-only" } });
 
@@ -120,12 +115,7 @@ describe("PolicySettings", () => {
     };
 
     render(
-      <PolicySettings
-        policy={policy}
-        onSave={mockSave}
-        onReset={mockReset}
-        loading={false}
-      />
+      <PolicySettings policy={policy} onSave={mockSave} onReset={mockReset} loading={false} />
     );
 
     expect(screen.getByText("internal-pkg")).toBeInTheDocument();

@@ -1,10 +1,5 @@
 import { SbomGenerator } from "@/analysis/SbomGenerator";
-import {
-  ResolvedDependency,
-  Ecosystem,
-  DependencyScope,
-  LicenseCategory,
-} from "@/models/types";
+import { ResolvedDependency, Ecosystem, DependencyScope, LicenseCategory } from "@/models/types";
 
 function makeDep(overrides: Partial<ResolvedDependency> = {}): ResolvedDependency {
   return {

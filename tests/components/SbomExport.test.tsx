@@ -113,9 +113,7 @@ describe("SbomExport", () => {
   test("shows empty state when no repos", () => {
     render(<SbomExport repos={[]} selectedRepo={null} />);
 
-    expect(
-      screen.getByText("No repositories with dependencies found.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("No repositories with dependencies found.")).toBeInTheDocument();
   });
 
   test("Download All triggers individual file downloads sequentially", async () => {

@@ -85,9 +85,7 @@ describe("FreshnessAnalyzer", () => {
   });
 
   test("flags unpinned version ranges as Unknown", () => {
-    const resultsWild = analyzer.analyze("repo", [
-      makeDep({ name: "wild-pkg", version: "*" }),
-    ]);
+    const resultsWild = analyzer.analyze("repo", [makeDep({ name: "wild-pkg", version: "*" })]);
     expect(resultsWild[0].status).toBe(FreshnessStatus.Unknown);
 
     analyzer.reset();
@@ -97,9 +95,7 @@ describe("FreshnessAnalyzer", () => {
     expect(resultsLatest[0].status).toBe(FreshnessStatus.Unknown);
 
     analyzer.reset();
-    const resultsGte = analyzer.analyze("repo", [
-      makeDep({ name: "gte-pkg", version: ">=1.0.0" }),
-    ]);
+    const resultsGte = analyzer.analyze("repo", [makeDep({ name: "gte-pkg", version: ">=1.0.0" })]);
     expect(resultsGte[0].status).toBe(FreshnessStatus.Unknown);
   });
 

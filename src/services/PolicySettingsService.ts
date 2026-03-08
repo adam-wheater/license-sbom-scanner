@@ -1,10 +1,6 @@
 import { LicensePolicy, PolicyDocument } from "@/models/types";
 import { DEFAULT_POLICY } from "@/models/LicenseRegistry";
-import {
-  POLICY_SETTINGS_COLLECTION,
-  POLICY_DOC_ID,
-  SETTINGS_VERSION,
-} from "@/utils/Constants";
+import { POLICY_SETTINGS_COLLECTION, POLICY_DOC_ID, SETTINGS_VERSION } from "@/utils/Constants";
 import { BaseDataService } from "./BaseDataService";
 
 export class PolicySettingsService extends BaseDataService {

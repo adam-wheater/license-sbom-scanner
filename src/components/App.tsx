@@ -1,5 +1,11 @@
 import * as React from "react";
-import { FullScanResult, ScanProgress as ScanProgressType, LicenseCategory, Ecosystem, ApprovedPackageEntry } from "@/models/types";
+import {
+  FullScanResult,
+  ScanProgress as ScanProgressType,
+  LicenseCategory,
+  Ecosystem,
+  ApprovedPackageEntry,
+} from "@/models/types";
 import { LICENSE_CATEGORY_COLORS, ECOSYSTEM_COLORS } from "@/utils/Constants";
 import { ScanOrchestrator } from "@/scanning/ScanOrchestrator";
 import { usePolicySettings } from "@/hooks/usePolicySettings";
@@ -59,12 +65,7 @@ class ErrorBoundary extends React.Component<
 
 function AppInner() {
   const theme = useTheme();
-  const {
-    loading: policyLoading,
-    policy,
-    savePolicy,
-    resetToDefaults,
-  } = usePolicySettings();
+  const { loading: policyLoading, policy, savePolicy, resetToDefaults } = usePolicySettings();
   const {
     loading: approvedLoading,
     registry: approvedRegistry,
@@ -248,7 +249,8 @@ function AppInner() {
           }}
         >
           <span>
-            {autoApprovedCount} new internal package{autoApprovedCount !== 1 ? "s were" : " was"} auto-approved.
+            {autoApprovedCount} new internal package{autoApprovedCount !== 1 ? "s were" : " was"}{" "}
+            auto-approved.
           </span>
           <button
             onClick={() => setAutoApprovedCount(null)}
@@ -323,43 +325,44 @@ function AppInner() {
           </div>
         )}
 
-        {scanResult && (activeTab === "dependencies" || activeTab === "violations" || activeTab === "sbom") && (
-          <>
-            <RepoList
-              repos={scanResult.repos}
-              selectedRepo={selectedRepo}
-              onSelectRepo={setSelectedRepo}
-            />
-            {selectedRepoResult ? (
-              <RepoDetail
-                repo={selectedRepoResult}
-                activeTab={activeTab}
-                searchTerm={searchTerm}
-                allRepos={scanResult.repos}
-                approvalRegistry={approvedRegistry}
+        {scanResult &&
+          (activeTab === "dependencies" || activeTab === "violations" || activeTab === "sbom") && (
+            <>
+              <RepoList
+                repos={scanResult.repos}
+                selectedRepo={selectedRepo}
+                onSelectRepo={setSelectedRepo}
               />
-            ) : (
-              <div style={{ flex: 1, overflowY: "auto" }}>
-                {activeTab === "dependencies" && (
-                  <div style={{ padding: "0 16px" }}>
-                    <DependencyTable
-                      dependencies={allDependencies}
-                      searchTerm={searchTerm}
-                      repoName="All Repositories"
-                      approvalRegistry={approvedRegistry}
-                    />
-                  </div>
-                )}
-                {activeTab === "violations" && (
-                  <PolicyViolations violations={allViolations} searchTerm={searchTerm} />
-                )}
-                {activeTab === "sbom" && (
-                  <SbomExport repos={scanResult.repos} selectedRepo={null} />
-                )}
-              </div>
-            )}
-          </>
-        )}
+              {selectedRepoResult ? (
+                <RepoDetail
+                  repo={selectedRepoResult}
+                  activeTab={activeTab}
+                  searchTerm={searchTerm}
+                  allRepos={scanResult.repos}
+                  approvalRegistry={approvedRegistry}
+                />
+              ) : (
+                <div style={{ flex: 1, overflowY: "auto" }}>
+                  {activeTab === "dependencies" && (
+                    <div style={{ padding: "0 16px" }}>
+                      <DependencyTable
+                        dependencies={allDependencies}
+                        searchTerm={searchTerm}
+                        repoName="All Repositories"
+                        approvalRegistry={approvedRegistry}
+                      />
+                    </div>
+                  )}
+                  {activeTab === "violations" && (
+                    <PolicyViolations violations={allViolations} searchTerm={searchTerm} />
+                  )}
+                  {activeTab === "sbom" && (
+                    <SbomExport repos={scanResult.repos} selectedRepo={null} />
+                  )}
+                </div>
+              )}
+            </>
+          )}
       </div>
     </div>
   );
@@ -413,13 +416,25 @@ function OverviewPanel({ result }: { result: FullScanResult }) {
           <div style={{ fontSize: 12, color: theme.textMuted }}>Total Dependencies</div>
         </div>
         <div style={statCardStyle}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: blockedTotal > 0 ? "#f44336" : theme.statGreen }}>
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: blockedTotal > 0 ? "#f44336" : theme.statGreen,
+            }}
+          >
             {blockedTotal}
           </div>
           <div style={{ fontSize: 12, color: theme.textMuted }}>Policy Blocked</div>
         </div>
         <div style={statCardStyle}>
-          <div style={{ fontSize: 28, fontWeight: 700, color: warnTotal > 0 ? "#ff9800" : theme.statGreen }}>
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: warnTotal > 0 ? "#ff9800" : theme.statGreen,
+            }}
+          >
             {warnTotal}
           </div>
           <div style={{ fontSize: 12, color: theme.textMuted }}>Policy Warnings</div>
@@ -532,9 +547,7 @@ function OverviewPanel({ result }: { result: FullScanResult }) {
                       background: theme.bgSurface,
                     }}
                   >
-                    <span style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>
-                      {repo.repoName}
-                    </span>
+                    <span style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{repo.repoName}</span>
                     {blocked > 0 && (
                       <span
                         style={{

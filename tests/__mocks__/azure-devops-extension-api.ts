@@ -28,10 +28,7 @@ export const VersionControlRecursionType = {
 };
 
 export interface IExtensionDataService {
-  getExtensionDataManager(
-    extensionId: string,
-    accessToken: string
-  ): Promise<IExtensionDataManager>;
+  getExtensionDataManager(extensionId: string, accessToken: string): Promise<IExtensionDataManager>;
 }
 
 export interface IExtensionDataManager {

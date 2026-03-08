@@ -39,9 +39,7 @@ export const InconsistencyView: React.FC<InconsistencyViewProps> = ({ inconsiste
         inc.packageName.toLowerCase().includes(lower) ||
         inc.ecosystem.toLowerCase().includes(lower) ||
         inc.entries.some(
-          (e) =>
-            e.repoName.toLowerCase().includes(lower) ||
-            e.version.toLowerCase().includes(lower)
+          (e) => e.repoName.toLowerCase().includes(lower) || e.version.toLowerCase().includes(lower)
         )
     );
   }, [inconsistencies, searchFilter]);

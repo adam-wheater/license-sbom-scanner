@@ -9,9 +9,7 @@ interface ScanProgressProps {
 export const ScanProgress: React.FC<ScanProgressProps> = ({ progress }) => {
   const theme = useTheme();
   const pct =
-    progress.reposTotal > 0
-      ? Math.round((progress.reposCompleted / progress.reposTotal) * 100)
-      : 0;
+    progress.reposTotal > 0 ? Math.round((progress.reposCompleted / progress.reposTotal) * 100) : 0;
 
   if (progress.phase === "complete") return null;
 

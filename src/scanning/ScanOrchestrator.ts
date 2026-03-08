@@ -35,7 +35,11 @@ export interface ScanOrchestratorDeps {
   getProject?: () => Promise<string>;
   getRepositories?: (project: string) => Promise<{ id: string; name: string }[]>;
   discoverFiles?: (repoId: string, project: string) => Promise<{ dependencyFiles: any[] }>;
-  fetchFileContents?: (repoId: string, project: string, files: any[]) => Promise<{ path: string; content: string }[]>;
+  fetchFileContents?: (
+    repoId: string,
+    project: string,
+    files: any[]
+  ) => Promise<{ path: string; content: string }[]>;
 }
 
 export class ScanOrchestrator {
@@ -50,7 +54,11 @@ export class ScanOrchestrator {
   private _getProject: () => Promise<string>;
   private _getRepositories: (project: string) => Promise<{ id: string; name: string }[]>;
   private _discoverFiles: (repoId: string, project: string) => Promise<{ dependencyFiles: any[] }>;
-  private _fetchFileContents: (repoId: string, project: string, files: any[]) => Promise<{ path: string; content: string }[]>;
+  private _fetchFileContents: (
+    repoId: string,
+    project: string,
+    files: any[]
+  ) => Promise<{ path: string; content: string }[]>;
 
   constructor(
     policy?: LicensePolicy,
@@ -71,17 +79,20 @@ export class ScanOrchestrator {
     this.sbomGenerator = deps?.sbomGenerator ?? new SbomGenerator();
     this.onProgress = onProgress;
 
-    this._getProject = deps?.getProject ?? (async () => {
-      const projectService = await SDK.getService<IProjectPageService>(
-        CommonServiceIds.ProjectPageService
-      );
-      const projectInfo = await projectService.getProject();
-      if (!projectInfo) {
-        throw new Error("Could not determine the current project.");
-      }
-      return projectInfo.name;
-    });
-    this._getRepositories = deps?.getRepositories ?? ((project: string) => ApiClient.getRepositories(project));
+    this._getProject =
+      deps?.getProject ??
+      (async () => {
+        const projectService = await SDK.getService<IProjectPageService>(
+          CommonServiceIds.ProjectPageService
+        );
+        const projectInfo = await projectService.getProject();
+        if (!projectInfo) {
+          throw new Error("Could not determine the current project.");
+        }
+        return projectInfo.name;
+      });
+    this._getRepositories =
+      deps?.getRepositories ?? ((project: string) => ApiClient.getRepositories(project));
     this._discoverFiles = deps?.discoverFiles ?? discoverFiles;
     this._fetchFileContents = deps?.fetchFileContents ?? fetchFileContents;
   }

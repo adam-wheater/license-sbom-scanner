@@ -9,10 +9,7 @@ interface PolicyViolationsProps {
   searchTerm: string;
 }
 
-export const PolicyViolations: React.FC<PolicyViolationsProps> = ({
-  violations,
-  searchTerm,
-}) => {
+export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ violations, searchTerm }) => {
   const theme = useTheme();
 
   const filtered = React.useMemo(() => {
@@ -58,9 +55,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 500, fontFamily: "monospace" }}>
           {v.dependency.name}
-          <span style={{ color: theme.textMuted, fontWeight: 400 }}>
-            @{v.dependency.version}
-          </span>
+          <span style={{ color: theme.textMuted, fontWeight: 400 }}>@{v.dependency.version}</span>
         </div>
         <div style={{ fontSize: 11, color: theme.textMuted, marginTop: 2 }}>{v.reason}</div>
       </div>

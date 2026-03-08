@@ -1,5 +1,11 @@
 import * as React from "react";
-import { ResolvedDependency, Ecosystem, LicenseCategory, ApprovedPackagesRegistry, ApprovalStatus } from "@/models/types";
+import {
+  ResolvedDependency,
+  Ecosystem,
+  LicenseCategory,
+  ApprovedPackagesRegistry,
+  ApprovalStatus,
+} from "@/models/types";
 import { useTheme } from "@/utils/theme";
 import { ECOSYSTEM_COLORS, APPROVAL_STATUS_COLORS } from "@/utils/Constants";
 import { LicenseBadge } from "./LicenseBadge";
@@ -80,7 +86,16 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
     });
 
     return result;
-  }, [dependencies, searchTerm, filterEcosystem, filterCategory, filterApproval, approvalMap, sortKey, sortDir]);
+  }, [
+    dependencies,
+    searchTerm,
+    filterEcosystem,
+    filterCategory,
+    filterApproval,
+    approvalMap,
+    sortKey,
+    sortDir,
+  ]);
 
   // Reset page when filters change
   React.useEffect(() => {
@@ -123,7 +138,15 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 8, padding: "8px 0", alignItems: "center", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          padding: "8px 0",
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         <span style={{ fontSize: 12, color: theme.textMuted }}>Filter:</span>
         <select
           value={filterEcosystem}
@@ -186,9 +209,7 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
                 Scope {sortKey === "scope" ? (sortDir === "asc" ? "^" : "v") : ""}
               </th>
               <th style={{ ...headerStyle, cursor: "default" }}>Source File</th>
-              {hasApproval && (
-                <th style={{ ...headerStyle, cursor: "default" }}>Approval</th>
-              )}
+              {hasApproval && <th style={{ ...headerStyle, cursor: "default" }}>Approval</th>}
             </tr>
           </thead>
           <tbody>
@@ -256,7 +277,10 @@ export const DependencyTable: React.FC<DependencyTableProps> = ({
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={colCount} style={{ ...cellStyle, textAlign: "center", color: theme.textMuted }}>
+                <td
+                  colSpan={colCount}
+                  style={{ ...cellStyle, textAlign: "center", color: theme.textMuted }}
+                >
                   No dependencies found matching the current filters.
                 </td>
               </tr>

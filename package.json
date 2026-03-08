@@ -10,8 +10,8 @@
     "test:watch": "jest --watch",
     "lint": "eslint 'src/**/*.{ts,tsx}' 'tests/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' 'tests/**/*.ts' --fix",
-    "format": "prettier --write 'src/**/*.{ts,tsx}' 'tests/**/*.ts'",
-    "format:check": "prettier --check 'src/**/*.{ts,tsx}' 'tests/**/*.ts'",
+    "format": "prettier --write 'src/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'",
     "publish:marketplace": "tfx extension publish --manifest-globs vss-extension.json"
   },
   "engines": {

@@ -6,10 +6,7 @@ export interface DiscoveredFiles {
   dependencyFiles: GitItem[];
 }
 
-export async function discoverFiles(
-  repoId: string,
-  project: string
-): Promise<DiscoveredFiles> {
+export async function discoverFiles(repoId: string, project: string): Promise<DiscoveredFiles> {
   const allItems = await ApiClient.getItems(repoId, project);
   const dependencyFiles: GitItem[] = [];
 

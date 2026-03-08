@@ -38,9 +38,7 @@ export class PolicyEngine {
         (o) => o.licenseId.toLowerCase() === dep.license.toLowerCase()
       );
 
-      const action = override
-        ? override.action
-        : this.policy.categoryDefaults[dep.licenseCategory];
+      const action = override ? override.action : this.policy.categoryDefaults[dep.licenseCategory];
 
       if (action === PolicyAction.Warn || action === PolicyAction.Block) {
         violations.push({

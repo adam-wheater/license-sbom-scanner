@@ -28,8 +28,7 @@ export class SbomGenerator {
       name: dep.name,
       version: dep.version,
       purl: this.buildPurl(dep),
-      licenses:
-        dep.license !== "Unknown" ? [{ license: { id: dep.license } }] : [],
+      licenses: dep.license !== "Unknown" ? [{ license: { id: dep.license } }] : [],
       scope:
         dep.scope === DependencyScope.Dev || dep.scope === DependencyScope.Test
           ? "optional"

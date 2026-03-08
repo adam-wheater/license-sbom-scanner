@@ -56,9 +56,7 @@ export const SbomExport: React.FC<SbomExportProps> = ({ repos, selectedRepo }) =
   return (
     <div style={{ padding: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-        <h3 style={{ margin: 0, fontSize: 14, color: theme.textPrimary }}>
-          CycloneDX SBOM Export
-        </h3>
+        <h3 style={{ margin: 0, fontSize: 14, color: theme.textPrimary }}>CycloneDX SBOM Export</h3>
         {!selectedRepo && displayRepos.length > 1 && (
           <button
             onClick={downloadAllSboms}
@@ -148,13 +146,11 @@ export const SbomExport: React.FC<SbomExportProps> = ({ repos, selectedRepo }) =
                   padding: "3px 8px",
                   borderRadius: 3,
                   border: "none",
-                  background:
-                    repo.sbom.components.length === 0 ? theme.disabledBg : "#0078d4",
+                  background: repo.sbom.components.length === 0 ? theme.disabledBg : "#0078d4",
                   color: "#fff",
                   fontSize: 11,
                   fontWeight: 600,
-                  cursor:
-                    repo.sbom.components.length === 0 ? "not-allowed" : "pointer",
+                  cursor: repo.sbom.components.length === 0 ? "not-allowed" : "pointer",
                 }}
               >
                 Download JSON

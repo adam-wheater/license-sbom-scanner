@@ -1,5 +1,12 @@
 import * as React from "react";
-import { LicenseCategory, PolicyAction, LicensePolicy, LicenseOverride, Ecosystem, ExcludedPackageEntry } from "@/models/types";
+import {
+  LicenseCategory,
+  PolicyAction,
+  LicensePolicy,
+  LicenseOverride,
+  Ecosystem,
+  ExcludedPackageEntry,
+} from "@/models/types";
 import { useTheme } from "@/utils/theme";
 import { LICENSE_CATEGORY_COLORS, POLICY_ACTION_COLORS } from "@/utils/Constants";
 
@@ -22,9 +29,7 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
   const [newOverrideLicense, setNewOverrideLicense] = React.useState("");
   const [newOverrideAction, setNewOverrideAction] = React.useState<PolicyAction>(PolicyAction.Warn);
   const [newExclusion, setNewExclusion] = React.useState("");
-  const [newExclusionEcosystem, setNewExclusionEcosystem] = React.useState<Ecosystem | "">(
-    ""
-  );
+  const [newExclusionEcosystem, setNewExclusionEcosystem] = React.useState<Ecosystem | "">("");
 
   React.useEffect(() => {
     setLocalPolicy(policy);
@@ -343,9 +348,7 @@ export const PolicySettings: React.FC<PolicySettingsProps> = ({
           />
           <select
             value={newExclusionEcosystem}
-            onChange={(e) =>
-              setNewExclusionEcosystem(e.target.value as Ecosystem | "")
-            }
+            onChange={(e) => setNewExclusionEcosystem(e.target.value as Ecosystem | "")}
             style={{
               padding: "3px 6px",
               fontSize: 12,

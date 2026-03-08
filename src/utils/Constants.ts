@@ -1,4 +1,10 @@
-import { Ecosystem, LicenseCategory, PolicyAction, FreshnessStatus, ApprovalStatus } from "@/models/types";
+import {
+  Ecosystem,
+  LicenseCategory,
+  PolicyAction,
+  FreshnessStatus,
+  ApprovalStatus,
+} from "@/models/types";
 
 // File patterns for dependency file discovery
 export const DEPENDENCY_FILE_PATTERNS: RegExp[] = [

@@ -1,5 +1,10 @@
 import * as React from "react";
-import { RepoScanResult, Ecosystem, LicenseCategory, ApprovedPackagesRegistry } from "@/models/types";
+import {
+  RepoScanResult,
+  Ecosystem,
+  LicenseCategory,
+  ApprovedPackagesRegistry,
+} from "@/models/types";
 import { useTheme } from "@/utils/theme";
 import { ECOSYSTEM_COLORS, LICENSE_CATEGORY_COLORS } from "@/utils/Constants";
 import { DependencyTable } from "./DependencyTable";
@@ -64,13 +69,25 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
           <div style={{ fontSize: 11, color: theme.textMuted }}>Dependencies</div>
         </div>
         <div style={statBoxStyle}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: blockedCount > 0 ? "#f44336" : theme.statGreen }}>
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              color: blockedCount > 0 ? "#f44336" : theme.statGreen,
+            }}
+          >
             {blockedCount}
           </div>
           <div style={{ fontSize: 11, color: theme.textMuted }}>Blocked</div>
         </div>
         <div style={statBoxStyle}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: warnCount > 0 ? "#ff9800" : theme.statGreen }}>
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              color: warnCount > 0 ? "#ff9800" : theme.statGreen,
+            }}
+          >
             {warnCount}
           </div>
           <div style={{ fontSize: 11, color: theme.textMuted }}>Warnings</div>
@@ -150,9 +167,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
         {activeTab === "violations" && (
           <PolicyViolations violations={repo.violations} searchTerm={searchTerm} />
         )}
-        {activeTab === "sbom" && (
-          <SbomExport repos={allRepos} selectedRepo={repo.repoName} />
-        )}
+        {activeTab === "sbom" && <SbomExport repos={allRepos} selectedRepo={repo.repoName} />}
       </div>
     </div>
   );

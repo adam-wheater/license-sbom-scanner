@@ -39,13 +39,7 @@ describe("DependencyTable", () => {
       makeDep({ name: "lodash", version: "4.17.21", ecosystem: Ecosystem.Npm }),
     ];
 
-    render(
-      <DependencyTable
-        dependencies={deps}
-        searchTerm=""
-        repoName="test-repo"
-      />
-    );
+    render(<DependencyTable dependencies={deps} searchTerm="" repoName="test-repo" />);
 
     expect(screen.getByText("react")).toBeInTheDocument();
     expect(screen.getByText("lodash")).toBeInTheDocument();
@@ -59,13 +53,7 @@ describe("DependencyTable", () => {
       makeDep({ name: "lodash", version: "4.17.21" }),
     ];
 
-    render(
-      <DependencyTable
-        dependencies={deps}
-        searchTerm="react"
-        repoName="test-repo"
-      />
-    );
+    render(<DependencyTable dependencies={deps} searchTerm="react" repoName="test-repo" />);
 
     expect(screen.getByText("react")).toBeInTheDocument();
     expect(screen.queryByText("lodash")).not.toBeInTheDocument();
@@ -74,13 +62,7 @@ describe("DependencyTable", () => {
   test("shows empty state when no matches", () => {
     const deps = [makeDep({ name: "react" })];
 
-    render(
-      <DependencyTable
-        dependencies={deps}
-        searchTerm="nonexistent"
-        repoName="test-repo"
-      />
-    );
+    render(<DependencyTable dependencies={deps} searchTerm="nonexistent" repoName="test-repo" />);
 
     expect(
       screen.getByText("No dependencies found matching the current filters.")
@@ -90,13 +72,7 @@ describe("DependencyTable", () => {
   test("pagination: shows 100 rows per page and navigation", () => {
     const deps = makeDeps(150);
 
-    render(
-      <DependencyTable
-        dependencies={deps}
-        searchTerm=""
-        repoName="test-repo"
-      />
-    );
+    render(<DependencyTable dependencies={deps} searchTerm="" repoName="test-repo" />);
 
     // Should show page indicator
     expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
@@ -119,13 +95,7 @@ describe("DependencyTable", () => {
   test("no pagination for small datasets", () => {
     const deps = makeDeps(50);
 
-    render(
-      <DependencyTable
-        dependencies={deps}
-        searchTerm=""
-        repoName="test-repo"
-      />
-    );
+    render(<DependencyTable dependencies={deps} searchTerm="" repoName="test-repo" />);
 
     expect(screen.queryByText(/Page/)).not.toBeInTheDocument();
   });
@@ -136,13 +106,7 @@ describe("DependencyTable", () => {
       makeDep({ name: "pkg-npm", ecosystem: Ecosystem.Npm }),
     ];
 
-    render(
-      <DependencyTable
-        dependencies={deps}
-        searchTerm=""
-        repoName="test-repo"
-      />
-    );
+    render(<DependencyTable dependencies={deps} searchTerm="" repoName="test-repo" />);
 
     // Select npm ecosystem filter
     const ecosystemSelect = screen.getAllByRole("combobox")[0];
@@ -181,16 +145,17 @@ describe("DependencyTable", () => {
 
   test("uses stable keys for rows (no index-based keys)", () => {
     const deps = [
-      makeDep({ name: "a-pkg", version: "1.0.0", ecosystem: Ecosystem.NuGet, sourceFile: "/a.csproj" }),
+      makeDep({
+        name: "a-pkg",
+        version: "1.0.0",
+        ecosystem: Ecosystem.NuGet,
+        sourceFile: "/a.csproj",
+      }),
       makeDep({ name: "b-pkg", version: "2.0.0", ecosystem: Ecosystem.Npm, sourceFile: "/b.json" }),
     ];
 
     const { container } = render(
-      <DependencyTable
-        dependencies={deps}
-        searchTerm=""
-        repoName="test-repo"
-      />
+      <DependencyTable dependencies={deps} searchTerm="" repoName="test-repo" />
     );
 
     // Verify rows are rendered (no crash from duplicate keys)

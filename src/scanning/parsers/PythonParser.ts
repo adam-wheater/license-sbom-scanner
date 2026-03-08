@@ -75,9 +75,7 @@ export class PythonParser implements IParser {
     const deps: ParsedDependency[] = [];
 
     // Extract [project] dependencies array
-    const depsMatch = content.match(
-      /\[project\][\s\S]*?dependencies\s*=\s*\[([\s\S]*?)\]/
-    );
+    const depsMatch = content.match(/\[project\][\s\S]*?dependencies\s*=\s*\[([\s\S]*?)\]/);
     if (depsMatch) {
       const items = this.extractTomlArrayItems(depsMatch[1]);
       for (const item of items) {
@@ -93,8 +91,7 @@ export class PythonParser implements IParser {
     }
 
     // Extract [project.optional-dependencies] sections
-    const optionalRegex =
-      /\[project\.optional-dependencies\]\s*\n([\s\S]*?)(?=\n\[|\n*$)/g;
+    const optionalRegex = /\[project\.optional-dependencies\]\s*\n([\s\S]*?)(?=\n\[|\n*$)/g;
     let optMatch;
     while ((optMatch = optionalRegex.exec(content)) !== null) {
       const section = optMatch[1];
@@ -139,9 +136,7 @@ export class PythonParser implements IParser {
     const deps: ParsedDependency[] = [];
 
     // Extract install_requires list
-    const installReqMatch = content.match(
-      /install_requires\s*=\s*\[([\s\S]*?)\]/
-    );
+    const installReqMatch = content.match(/install_requires\s*=\s*\[([\s\S]*?)\]/);
     if (installReqMatch) {
       const items = this.extractPythonListItems(installReqMatch[1]);
       for (const item of items) {
@@ -157,9 +152,7 @@ export class PythonParser implements IParser {
     }
 
     // Extract tests_require / extras_require
-    const testsReqMatch = content.match(
-      /tests_require\s*=\s*\[([\s\S]*?)\]/
-    );
+    const testsReqMatch = content.match(/tests_require\s*=\s*\[([\s\S]*?)\]/);
     if (testsReqMatch) {
       const items = this.extractPythonListItems(testsReqMatch[1]);
       for (const item of items) {
@@ -185,7 +178,10 @@ export class PythonParser implements IParser {
       /\[options\][\s\S]*?install_requires\s*=\s*\n((?:\s+\S.*\n?)*)/
     );
     if (installReqMatch) {
-      const lines = installReqMatch[1].split("\n").map((l) => l.trim()).filter(Boolean);
+      const lines = installReqMatch[1]
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
       for (const line of lines) {
         const parsed = this.parseRequirementString(line);
         if (parsed) {

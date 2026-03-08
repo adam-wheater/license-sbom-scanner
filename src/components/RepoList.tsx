@@ -47,7 +47,12 @@ export const RepoList: React.FC<RepoListProps> = ({ repos, selectedRepo, onSelec
         }}
       >
         <div style={{ fontSize: 13, fontWeight: 600 }}>All Repositories</div>
-        <div style={{ fontSize: 11, color: selectedRepo === null ? "rgba(255,255,255,0.8)" : theme.textMuted }}>
+        <div
+          style={{
+            fontSize: 11,
+            color: selectedRepo === null ? "rgba(255,255,255,0.8)" : theme.textMuted,
+          }}
+        >
           {repos.reduce((sum, r) => sum + r.dependencies.length, 0)} deps total
         </div>
       </div>
@@ -59,7 +64,10 @@ export const RepoList: React.FC<RepoListProps> = ({ repos, selectedRepo, onSelec
         // Count license categories for mini breakdown
         const categoryCounts = new Map<LicenseCategory, number>();
         for (const dep of repo.dependencies) {
-          categoryCounts.set(dep.licenseCategory, (categoryCounts.get(dep.licenseCategory) || 0) + 1);
+          categoryCounts.set(
+            dep.licenseCategory,
+            (categoryCounts.get(dep.licenseCategory) || 0) + 1
+          );
         }
 
         return (
@@ -118,9 +126,7 @@ export const RepoList: React.FC<RepoListProps> = ({ repos, selectedRepo, onSelec
                     width: Math.max(4, Math.min(count * 3, 40)),
                     height: 3,
                     borderRadius: 1,
-                    background: isSelected
-                      ? "rgba(255,255,255,0.5)"
-                      : LICENSE_CATEGORY_COLORS[cat],
+                    background: isSelected ? "rgba(255,255,255,0.5)" : LICENSE_CATEGORY_COLORS[cat],
                   }}
                 />
               ))}

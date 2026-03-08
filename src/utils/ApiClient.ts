@@ -39,11 +39,7 @@ export async function getItems(
   }
 }
 
-export async function getItemText(
-  repoId: string,
-  path: string,
-  project: string
-): Promise<string> {
+export async function getItemText(repoId: string, path: string, project: string): Promise<string> {
   try {
     const client = getGitClient();
     return await client.getItemText(repoId, path, project);
