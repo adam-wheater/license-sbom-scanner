@@ -60,7 +60,7 @@ describe("InconsistencyView", () => {
     const versionElements = container.querySelectorAll(
       '[style*="font-family: monospace"][style*="min-width"]'
     );
-    const renderedVersions = Array.from(versionElements).map((el) => el.textContent?.trim());
+    const renderedVersions = Array.from(versionElements).map((el: Element) => el.textContent?.trim());
 
     // Should be sorted by semver: 1.0.0, 2.0.0, 10.0.0 (not 1.0.0, 10.0.0, 2.0.0)
     expect(renderedVersions).toEqual(["1.0.0", "2.0.0", "10.0.0"]);

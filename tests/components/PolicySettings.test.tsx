@@ -92,7 +92,7 @@ describe("PolicySettings", () => {
 
     // Type a license ID in the override input
     const inputs = screen.getAllByRole("textbox");
-    const licenseInput = inputs.find((input) =>
+    const licenseInput = inputs.find((input: HTMLElement) =>
       (input as HTMLInputElement).placeholder?.includes("SPDX License ID")
     )!;
     fireEvent.change(licenseInput, { target: { value: "GPL-3.0-only" } });
