@@ -1,3 +1,6 @@
+Push-Location $PSScriptRoot
+try {
+
 Write-Host "=== License & SBOM Scanner - Build & Package ==="
 Write-Host ""
 
@@ -61,4 +64,8 @@ if ($vsix) {
 } else {
     Write-Host "Warning: No .vsix file found in out/"
     exit 1
+}
+
+} finally {
+    Pop-Location
 }
