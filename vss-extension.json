@@ -1,7 +1,7 @@
 {
   "manifestVersion": 1,
   "id": "license-sbom-scanner",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "name": "License & SBOM Scanner",
   "description": "Scans repository dependencies for license compliance, generates CycloneDX SBOM documents, and tracks dependency freshness across NuGet, npm, Go, Python, and Maven ecosystems.",
   "publisher": "allpay-adam",

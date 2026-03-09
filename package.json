@@ -1,6 +1,6 @@
 {
   "name": "license-sbom-scanner",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Azure DevOps extension for scanning repository dependencies, license compliance, and SBOM generation",
   "scripts": {
     "build": "webpack --mode production",
