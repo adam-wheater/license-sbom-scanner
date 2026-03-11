@@ -144,6 +144,7 @@ export interface ScanProgress {
   currentRepo: string;
   message: string;
   failedRepos?: string[];
+  cachedRepos?: number;
 }
 
 export interface VersionInconsistency {

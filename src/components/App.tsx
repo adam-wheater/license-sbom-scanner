@@ -8,6 +8,7 @@ import {
 } from "@/models/types";
 import { LICENSE_CATEGORY_COLORS, ECOSYSTEM_COLORS } from "@/utils/Constants";
 import { ScanOrchestrator } from "@/scanning/ScanOrchestrator";
+import { ScanCache } from "@/scanning/ScanCache";
 import { usePolicySettings } from "@/hooks/usePolicySettings";
 import { useApprovedPackages } from "@/hooks/useApprovedPackages";
 import { useTheme } from "@/utils/theme";
@@ -89,9 +90,14 @@ function AppInner() {
 
   const [autoApprovedCount, setAutoApprovedCount] = React.useState<number | null>(null);
   const orchestratorRef = React.useRef<ScanOrchestrator | null>(null);
+  const scanCacheRef = React.useRef(new ScanCache());
 
   const handleCancel = React.useCallback(() => {
     orchestratorRef.current?.abort();
+  }, []);
+
+  const handleForceScan = React.useCallback(() => {
+    scanCacheRef.current.clear();
   }, []);
 
   const handleScan = React.useCallback(async () => {
@@ -109,7 +115,7 @@ function AppInner() {
         if (gen === scanGenRef.current) {
           setProgress(p);
         }
-      });
+      }, { cache: scanCacheRef.current });
       orchestratorRef.current = orchestrator;
       const result = await orchestrator.scan();
 
@@ -208,6 +214,7 @@ function AppInner() {
         scanning={scanning}
         onScan={handleScan}
         onCancel={handleCancel}
+        onForceScan={() => { handleForceScan(); handleScan(); }}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         searchTerm={searchTerm}

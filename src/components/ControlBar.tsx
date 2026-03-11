@@ -14,6 +14,7 @@ interface ControlBarProps {
   scanning: boolean;
   onScan: () => void;
   onCancel?: () => void;
+  onForceScan?: () => void;
   activeTab: ViewTab;
   onTabChange: (tab: ViewTab) => void;
   searchTerm: string;
@@ -28,6 +29,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
   scanning,
   onScan,
   onCancel,
+  onForceScan,
   activeTab,
   onTabChange,
   searchTerm,
@@ -73,7 +75,7 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           cursor: scanning ? "not-allowed" : "pointer",
         }}
       >
-        {scanning ? "Scanning..." : "Scan All Repos"}
+        {scanning ? "Scanning..." : hasResults ? "Re-scan" : "Scan All Repos"}
       </button>
       {scanning && onCancel && (
         <button
@@ -90,6 +92,22 @@ export const ControlBar: React.FC<ControlBarProps> = ({
           }}
         >
           Cancel
+        </button>
+      )}
+      {!scanning && hasResults && onForceScan && (
+        <button
+          onClick={onForceScan}
+          style={{
+            padding: "6px 12px",
+            borderRadius: 3,
+            border: `1px solid ${theme.borderDefault}`,
+            background: theme.btnDefaultBg,
+            color: theme.textPrimary,
+            fontSize: 12,
+            cursor: "pointer",
+          }}
+        >
+          Full Re-scan
         </button>
       )}
 

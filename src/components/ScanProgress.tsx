@@ -46,6 +46,11 @@ export const ScanProgress: React.FC<ScanProgressProps> = ({ progress }) => {
       </div>
       <div style={{ fontSize: 12, color: theme.textMuted }}>
         {progress.message}
+        {progress.cachedRepos != null && progress.cachedRepos > 0 && (
+          <span style={{ color: "#0078d4", marginLeft: 8 }}>
+            ({progress.cachedRepos} from cache)
+          </span>
+        )}
         {progress.failedRepos && progress.failedRepos.length > 0 && (
           <span style={{ color: theme.errorText, marginLeft: 8 }}>
             ({progress.failedRepos.length} failed)

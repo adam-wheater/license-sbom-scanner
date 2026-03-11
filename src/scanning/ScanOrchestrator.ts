@@ -2,6 +2,7 @@ import * as SDK from "azure-devops-extension-sdk";
 import { CommonServiceIds, IProjectPageService } from "azure-devops-extension-api";
 import * as ApiClient from "@/utils/ApiClient";
 import { ConcurrencyLimiter } from "@/utils/ConcurrencyLimiter";
+import { ScanCache } from "./ScanCache";
 import { MAX_CONCURRENT_REPOS } from "@/utils/Constants";
 import { discoverFiles } from "./FileDiscovery";
 import { fetchFileContents } from "./FileContentFetcher";
@@ -40,6 +41,7 @@ export interface ScanOrchestratorDeps {
     project: string,
     files: any[]
   ) => Promise<{ path: string; content: string }[]>;
+  cache?: ScanCache;
 }
 
 export class ScanOrchestrator {
@@ -59,6 +61,7 @@ export class ScanOrchestrator {
     project: string,
     files: any[]
   ) => Promise<{ path: string; content: string }[]>;
+  private cache: ScanCache | null;
 
   constructor(
     policy?: LicensePolicy,
@@ -95,6 +98,7 @@ export class ScanOrchestrator {
       deps?.getRepositories ?? ((project: string) => ApiClient.getRepositories(project));
     this._discoverFiles = deps?.discoverFiles ?? discoverFiles;
     this._fetchFileContents = deps?.fetchFileContents ?? fetchFileContents;
+    this.cache = deps?.cache ?? null;
   }
 
   abort(): void {
@@ -121,12 +125,25 @@ export class ScanOrchestrator {
     const results: RepoScanResult[] = [];
     let completed = 0;
     const failedRepos: string[] = [];
+    let cachedCount = 0;
 
     this.reportProgress("scanning", repos.length, 0, "", "Scanning repositories...");
 
     await repoLimiter.map(repos, async (repo) => {
       try {
         if (signal.aborted) throw new DOMException("Scan cancelled", "AbortError");
+
+        // Check cache first
+        if (this.cache) {
+          const cached = this.cache.get(repo.id);
+          if (cached) {
+            // Feed cached deps into freshness analyzer for cross-repo consistency tracking
+            this.freshnessAnalyzer.analyze(cached.repoName, cached.dependencies);
+            results.push(cached);
+            cachedCount++;
+            return;
+          }
+        }
 
         this.reportProgress(
           "scanning",
@@ -139,7 +156,6 @@ export class ScanOrchestrator {
         // Phase 1: Discover dependency files
         const discovered = await this._discoverFiles(repo.id, project);
         if (discovered.dependencyFiles.length === 0) {
-          completed++;
           return;
         }
 
@@ -201,7 +217,7 @@ export class ScanOrchestrator {
         // Phase 7: Generate SBOM
         const sbom = this.sbomGenerator.generate(repo.name, resolved);
 
-        results.push({
+        const repoResult: RepoScanResult = {
           repoName: repo.name,
           repoId: repo.id,
           dependencies: resolved,
@@ -211,7 +227,9 @@ export class ScanOrchestrator {
           scannedAt: new Date(),
           fileCount: fileContents.length,
           internalPackages: repoInternalPackages,
-        });
+        };
+        results.push(repoResult);
+        this.cache?.set(repo.id, repoResult);
       } catch (err) {
         console.warn(`Failed to scan repo ${repo.name}:`, err);
         failedRepos.push(repo.name);
@@ -223,7 +241,8 @@ export class ScanOrchestrator {
           completed,
           "",
           `Scanned ${completed} of ${repos.length} repositories...`,
-          failedRepos.length > 0 ? [...failedRepos] : undefined
+          failedRepos.length > 0 ? [...failedRepos] : undefined,
+          cachedCount
         );
       }
     });
@@ -289,7 +308,8 @@ export class ScanOrchestrator {
     completed: number,
     currentRepo: string,
     message: string,
-    failedRepos?: string[]
+    failedRepos?: string[],
+    cachedRepos?: number
   ): void {
     this.onProgress?.({
       phase,
@@ -298,6 +318,7 @@ export class ScanOrchestrator {
       currentRepo,
       message,
       failedRepos,
+      cachedRepos,
     });
   }
 }

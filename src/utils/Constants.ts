@@ -42,8 +42,8 @@ export const SKIP_PATTERNS: RegExp[] = [
 ];
 
 // Concurrency limits
-export const MAX_CONCURRENT_REPOS = 5;
-export const MAX_CONCURRENT_FILES = 10;
+export const MAX_CONCURRENT_REPOS = 15;
+export const MAX_CONCURRENT_FILES = 20;
 
 // Max file size to process (1 MB)
 export const MAX_FILE_SIZE = 1024 * 1024;

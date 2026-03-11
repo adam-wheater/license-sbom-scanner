@@ -1,4 +1,5 @@
 import { ScanOrchestrator, ScanOrchestratorDeps } from "@/scanning/ScanOrchestrator";
+import { ScanCache } from "@/scanning/ScanCache";
 import { NpmParser } from "@/scanning/parsers/NpmParser";
 import { LicenseResolver } from "@/scanning/LicenseResolver";
 import { PolicyEngine } from "@/analysis/PolicyEngine";
@@ -204,5 +205,75 @@ describe("ScanOrchestrator", () => {
     const result = await orchestrator.scan();
 
     expect(result.scanDurationMs).toBeGreaterThanOrEqual(0);
+  });
+
+  test("uses cached results on second scan", async () => {
+    const cache = new ScanCache();
+    const discoverSpy = jest.fn(async () => ({
+      dependencyFiles: [{ path: "/package.json", isFolder: false }],
+    }));
+    const deps = makeMockDeps({
+      getRepositories: async () => [
+        { id: "repo-1", name: "my-repo" },
+        { id: "repo-2", name: "other-repo" },
+      ],
+      discoverFiles: discoverSpy,
+      cache,
+    });
+
+    // First scan: discover is called for both repos
+    const orchestrator1 = new ScanOrchestrator(undefined, undefined, deps);
+    const result1 = await orchestrator1.scan();
+    expect(result1.repos).toHaveLength(2);
+    expect(discoverSpy).toHaveBeenCalledTimes(2);
+
+    // Second scan: cached repos skip discovery
+    discoverSpy.mockClear();
+    const orchestrator2 = new ScanOrchestrator(undefined, undefined, deps);
+    const result2 = await orchestrator2.scan();
+    expect(result2.repos).toHaveLength(2);
+    expect(discoverSpy).toHaveBeenCalledTimes(0);
+  });
+
+  test("cache can be cleared for full re-scan", async () => {
+    const cache = new ScanCache();
+    const discoverSpy = jest.fn(async () => ({
+      dependencyFiles: [{ path: "/package.json", isFolder: false }],
+    }));
+    const deps = makeMockDeps({ discoverFiles: discoverSpy, cache });
+
+    // First scan
+    const orchestrator1 = new ScanOrchestrator(undefined, undefined, deps);
+    await orchestrator1.scan();
+    expect(discoverSpy).toHaveBeenCalledTimes(1);
+
+    // Clear cache and re-scan
+    cache.clear();
+    discoverSpy.mockClear();
+    const orchestrator2 = new ScanOrchestrator(undefined, undefined, deps);
+    await orchestrator2.scan();
+    expect(discoverSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("reports cached repo count in progress", async () => {
+    const cache = new ScanCache();
+    const deps = makeMockDeps({ cache });
+
+    // First scan populates cache
+    const orchestrator1 = new ScanOrchestrator(undefined, undefined, deps);
+    await orchestrator1.scan();
+
+    // Second scan should report cached repos
+    const progressUpdates: ScanProgress[] = [];
+    const orchestrator2 = new ScanOrchestrator(
+      undefined,
+      (p) => progressUpdates.push({ ...p }),
+      deps
+    );
+    await orchestrator2.scan();
+
+    const scanningUpdates = progressUpdates.filter((p) => p.phase === "scanning");
+    const lastUpdate = scanningUpdates[scanningUpdates.length - 1];
+    expect(lastUpdate.cachedRepos).toBe(1);
   });
 });
